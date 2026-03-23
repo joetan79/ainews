@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}AI & Tech Daily{% endblock %}</title>
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+  <meta name="theme-color" content="#0F172A">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="AI & Tech Daily">
+  <meta property="og:description" content="Your daily AI & tech intelligence">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="/static/style.css" />
+
+  <style>
+    :root {
+      --bg-primary:   #0A0A0B;
+      --bg-card:      #111116;
+      --border:       #1E1E2E;
+      --text-primary: #FAFAFA;
+      --text-muted:   #94A3B8;
+      --text-dim:     #64748B;
+      --text-faint:   #334155;
+      --accent:       #06B6D4;
+      --accent-dark:  #0891B2;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg-primary);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      margin: 0;
+      animation: pageIn 0.25s ease both;
+    }
+
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Article cards: staggered fade-in */
+    .article-card {
+      opacity: 0;
+      animation: cardIn 0.4s ease both;
+    }
+    .article-card:nth-child(1) { animation-delay: 0.04s; }
+    .article-card:nth-child(2) { animation-delay: 0.09s; }
+    .article-card:nth-child(3) { animation-delay: 0.14s; }
+    .article-card:nth-child(4) { animation-delay: 0.19s; }
+    .article-card:nth-child(5) { animation-delay: 0.24s; }
+    .article-card:nth-child(6) { animation-delay: 0.29s; }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card hover */
+    .news-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .news-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 0 1px rgba(6,182,212,0.25), 0 24px 48px rgba(0,0,0,0.55);
+      border-color: rgba(6,182,212,0.25) !important;
+    }
+
+    /* Navbar blur backdrop */
+    .nav-blur {
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      background: rgba(10, 10, 11, 0.82);
+    }
+
+    /* Category badge shimmer */
+    .category-badge {
+      background: linear-gradient(90deg, #06B6D4 0%, #22D3EE 40%, #06B6D4 100%);
+      background-size: 200% auto;
+      animation: shimmer 3.5s linear infinite;
+      color: #0A0A0B;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.65rem;
+      border-radius: 9999px;
+      display: inline-block;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+
+    /* Subscribe button pulse */
+    .subscribe-pulse {
+      animation: pulseCyan 2.2s ease-in-out infinite;
+    }
+    .subscribe-pulse:hover {
+      animation: none;
+    }
+    @keyframes pulseCyan {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(6,182,212,0.45); }
+      50%       { box-shadow: 0 0 0 10px rgba(6,182,212,0); }
+    }
+
+    /* Gradient-border card (for subscribe section) */
+    .grad-border-card {
+      position: relative;
+      background: var(--bg-card);
+      border-radius: 1.25rem;
+    }
+    .grad-border-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, #06B6D4 0%, #0891B2 30%, #1E1E2E 60%, #1E1E2E 100%);
+      z-index: -1;
+    }
+
+    /* Input focus */
+    .dark-input:focus {
+      outline: none;
+      border-color: rgba(6,182,212,0.5) !important;
+    }
+
+    /* Spin animation for loading */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 0.8s linear infinite; }
+  </style>
+</head>
+<body>
+
+  <!-- Fixed Navbar -->
+  <nav class="nav-blur fixed top-0 left-0 right-0 z-50" style="border-bottom: 1px solid var(--border);">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 1.5rem;">
+      <div style="display: flex; align-items: center; justify-content: space-between; height: 64px;">
+
+        <!-- Logo -->
+        <a href="/" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none;">
+          <span style="font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--text-primary); transition: color 0.2s;"
+                onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-primary)'">
+            AI &amp; Tech Daily
+          </span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 500; color: var(--accent); background: rgba(6,182,212,0.12); border: 1px solid rgba(6,182,212,0.2); padding: 0.15rem 0.5rem; border-radius: 9999px; letter-spacing: 0.08em; display: none;"
+                class="sm:inline-block">
+            DAILY
+          </span>
+        </a>
+
+        <!-- Nav actions -->
+        <div>
+          <a href="/#subscribe"
+             style="display: inline-flex; align-items: center; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 600; color: var(--accent); border: 1px solid rgba(6,182,212,0.5); padding: 0.5rem 1.125rem; border-radius: 0.625rem; text-decoration: none; transition: background 0.2s, border-color 0.2s;"
+             onmouseover="this.style.background='rgba(6,182,212,0.1)'; this.style.borderColor='var(--accent)'"
+             onmouseout="this.style.background='transparent'; this.style.borderColor='rgba(6,182,212,0.5)'">
+            Subscribe
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </nav>
+
+  <!-- Spacer for fixed navbar -->
+  <div style="height: 64px;"></div>
+
+  <!-- Page content -->
+  <main style="flex: 1;">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer style="border-top: 1px solid var(--border); background: var(--bg-card); margin-top: 5rem;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 2rem 1.5rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
+      <p style="font-family: 'DM Sans', sans-serif; font-size: 0.8125rem; color: var(--text-faint);">
+        &copy; {{ now.year if now else '2026' }} AI &amp; Tech Daily. All rights reserved.
+      </p>
+      <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #283548; font-style: italic;">
+        Powered by ABbot
+      </p>
+    </div>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
