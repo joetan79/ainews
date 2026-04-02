@@ -21,7 +21,10 @@
       "Bash(ufw --force enable)",
       "Bash(ufw reload:*)",
       "Bash(ufw delete:*)",
-      "Bash(systemctl status:*)"
+      "Bash(systemctl status:*)",
+      "Bash(ls /home/claudeProj/ainews/.env*)",
+      "Bash(python:*)",
+      "Bash(python3:*)"
     ]
   }
 }

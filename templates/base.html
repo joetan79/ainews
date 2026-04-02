@@ -7,9 +7,8 @@
 
   <!-- Favicons -->
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-  <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
-  <meta name="theme-color" content="#0F172A">
+  <link rel="shortcut icon" href="/static/favicon.svg">
+  <meta name="theme-color" content="#06B6D4">
 
   <!-- Open Graph -->
   <meta property="og:title" content="AI & Tech Daily">
@@ -27,15 +26,47 @@
 
   <link rel="stylesheet" href="/static/style.css" />
 
+  <!-- Apply theme BEFORE render to prevent flash of wrong theme -->
+  <script>
+    (function() {
+      var theme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
   <style>
+    /* ── Light mode (default) ── */
     :root {
+      --bg-primary:   #ffffff;
+      --bg-secondary: #F8FAFC;
+      --bg-card:      #ffffff;
+      --border:       #E2E8F0;
+      --border-color: #E2E8F0;
+      --text-primary: #0F172A;
+      --text-secondary: #64748B;
+      --text-muted:   #94A3B8;
+      --text-dim:     #64748B;
+      --text-faint:   #94A3B8;
+      --navbar-bg:    rgba(255,255,255,0.95);
+      --card-shadow:  0 1px 3px rgba(0,0,0,0.1);
+      --accent:       #06B6D4;
+      --accent-dark:  #0891B2;
+    }
+
+    /* ── Dark mode ── */
+    [data-theme="dark"] {
       --bg-primary:   #0A0A0B;
+      --bg-secondary: #111116;
       --bg-card:      #111116;
       --border:       #1E1E2E;
+      --border-color: #1E1E2E;
       --text-primary: #FAFAFA;
+      --text-secondary: #94A3B8;
       --text-muted:   #94A3B8;
       --text-dim:     #64748B;
       --text-faint:   #334155;
+      --navbar-bg:    rgba(10,10,11,0.95);
+      --card-shadow:  0 1px 3px rgba(0,0,0,0.4);
       --accent:       #06B6D4;
       --accent-dark:  #0891B2;
     }
@@ -53,6 +84,7 @@
       color: var(--text-primary);
       margin: 0;
       animation: pageIn 0.25s ease both;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     @keyframes pageIn {
@@ -79,7 +111,10 @@
 
     /* Card hover */
     .news-card {
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      box-shadow: var(--card-shadow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.3s ease;
     }
     .news-card:hover {
       transform: translateY(-4px);
@@ -91,7 +126,15 @@
     .nav-blur {
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      background: rgba(10, 10, 11, 0.82);
+      background: var(--navbar-bg);
+    }
+
+    /* Hero section adapts to theme */
+    .hero-section {
+      background: linear-gradient(135deg, #EFF6FF 0%, #F0FDFA 100%);
+    }
+    [data-theme="dark"] .hero-section {
+      background: linear-gradient(135deg, #0F172A 0%, #0A0A0B 100%);
     }
 
     /* Category badge shimmer */
@@ -149,6 +192,21 @@
     /* Spin animation for loading */
     @keyframes spin { to { transform: rotate(360deg); } }
     .spin { animation: spin 0.8s linear infinite; }
+
+    /* Dark mode translate dropdown */
+    [data-theme="dark"] #translate-menu {
+      background: #1E1E2E;
+      border-color: #2D2D3E;
+    }
+    [data-theme="dark"] #translate-menu a {
+      color: #FAFAFA !important;
+    }
+    [data-theme="dark"] #translate-menu a:hover {
+      background: #2D2D3E !important;
+    }
+
+    body { top: 0 !important; }
+    .skiptranslate { display: none !important; }
   </style>
 </head>
 <body>
@@ -171,7 +229,137 @@
         </a>
 
         <!-- Nav actions -->
-        <div>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+
+          <!-- Dark/Light Mode Toggle -->
+          <button
+            id="theme-toggle"
+            onclick="toggleTheme()"
+            style="padding:8px 12px; border-radius:8px;
+                   border:1px solid var(--border); background:transparent;
+                   cursor:pointer; font-size:16px;
+                   color: var(--text-primary);
+                   transition: all 0.2s;"
+            title="Toggle dark/light mode">
+            🌙
+          </button>
+
+          <!-- Translate Button -->
+          <div class="relative inline-block" id="translate-wrapper" style="position:relative; display:inline-block;">
+            <button
+              onclick="toggleTranslateMenu()"
+              id="translate-btn"
+              style="display:flex; align-items:center; gap:6px;
+                     padding:8px 14px; border-radius:8px;
+                     border:1px solid #06B6D4; background:transparent;
+                     color:#06B6D4; cursor:pointer; font-size:14px;
+                     transition: all 0.2s;">
+              🌐 <span>Translate</span>
+            </button>
+
+            <!-- Language Dropdown -->
+            <div id="translate-menu"
+                 style="display:none; position:absolute;
+                        top:110%; right:0; z-index:9999;
+                        background:white; border:1px solid #E2E8F0;
+                        border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12);
+                        min-width:200px; overflow:hidden;">
+              <div style="padding:8px 0;">
+                <div style="padding:8px 16px; font-size:11px;
+                            color:#94A3B8; font-weight:600;
+                            text-transform:uppercase;
+                            letter-spacing:0.5px;">
+                  Select Language
+                </div>
+                <a onclick="translatePage('en')"
+                   style="display:block; padding:10px 16px;
+                          color:#0F172A; text-decoration:none;
+                          cursor:pointer; font-size:14px;
+                          transition:background 0.15s;"
+                   onmouseover="this.style.background='#F1F5F9'"
+                   onmouseout="this.style.background='transparent'">
+                   🇬🇧 English (Original)
+                </a>
+                <a onclick="translatePage('zh-TW')"
+                   style="display:block; padding:10px 16px;
+                          color:#0F172A; text-decoration:none;
+                          cursor:pointer; font-size:14px;
+                          transition:background 0.15s;"
+                   onmouseover="this.style.background='#F1F5F9'"
+                   onmouseout="this.style.background='transparent'">
+                   🇹🇼 Traditional Chinese
+                </a>
+                <a onclick="translatePage('zh-CN')"
+                   style="display:block; padding:10px 16px;
+                          color:#0F172A; text-decoration:none;
+                          cursor:pointer; font-size:14px;"
+                   onmouseover="this.style.background='#F1F5F9'"
+                   onmouseout="this.style.background='transparent'">
+                   🇨🇳 Simplified Chinese
+                </a>
+                <a onclick="translatePage('ms')"
+                   style="display:block; padding:10px 16px;
+                          color:#0F172A; text-decoration:none;
+                          cursor:pointer; font-size:14px;"
+                   onmouseover="this.style.background='#F1F5F9'"
+                   onmouseout="this.style.background='transparent'">
+                   🇲🇾 Bahasa Melayu
+                </a>
+                <a onclick="translatePage('ar')"
+                   style="display:block; padding:10px 16px;
+                          color:#0F172A; text-decoration:none;
+                          cursor:pointer; font-size:14px;"
+                   onmouseover="this.style.background='#F1F5F9'"
+                   onmouseout="this.style.background='transparent'">
+                   🇸🇦 Arabic
+                </a>
+                <a onclick="translatePage('ja')"
+                   style="display:block; padding:10px 16px;
+                          color:#0F172A; text-decoration:none;
+                          cursor:pointer; font-size:14px;"
+                   onmouseover="this.style.background='#F1F5F9'"
+                   onmouseout="this.style.background='transparent'">
+                   🇯🇵 Japanese
+                </a>
+                <a onclick="translatePage('ko')"
+                   style="display:block; padding:10px 16px;
+                          color:#0F172A; text-decoration:none;
+                          cursor:pointer; font-size:14px;"
+                   onmouseover="this.style.background='#F1F5F9'"
+                   onmouseout="this.style.background='transparent'">
+                   🇰🇷 Korean
+                </a>
+                <a onclick="translatePage('fr')"
+                   style="display:block; padding:10px 16px;
+                          color:#0F172A; text-decoration:none;
+                          cursor:pointer; font-size:14px;"
+                   onmouseover="this.style.background='#F1F5F9'"
+                   onmouseout="this.style.background='transparent'">
+                   🇫🇷 French
+                </a>
+                <a onclick="translatePage('de')"
+                   style="display:block; padding:10px 16px;
+                          color:#0F172A; text-decoration:none;
+                          cursor:pointer; font-size:14px;"
+                   onmouseover="this.style.background='#F1F5F9'"
+                   onmouseout="this.style.background='transparent'">
+                   🇩🇪 German
+                </a>
+                <a onclick="translatePage('es')"
+                   style="display:block; padding:10px 16px;
+                          color:#0F172A; text-decoration:none;
+                          cursor:pointer; font-size:14px;"
+                   onmouseover="this.style.background='#F1F5F9'"
+                   onmouseout="this.style.background='transparent'">
+                   🇪🇸 Spanish
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hidden Google Translate element -->
+          <div id="google_translate_element" style="display:none;"></div>
+
           <a href="/#subscribe"
              style="display: inline-flex; align-items: center; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 600; color: var(--accent); border: 1px solid rgba(6,182,212,0.5); padding: 0.5rem 1.125rem; border-radius: 0.625rem; text-decoration: none; transition: background 0.2s, border-color 0.2s;"
              onmouseover="this.style.background='rgba(6,182,212,0.1)'; this.style.borderColor='var(--accent)'"
@@ -205,5 +393,82 @@
   </footer>
 
   {% block scripts %}{% endblock %}
+
+  <script>
+    // ── Google Translate ──
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en',
+        includedLanguages: 'zh-TW,zh-CN,ms,ar,ja,ko,fr,de,es',
+        autoDisplay: false,
+      }, 'google_translate_element');
+    }
+
+    function translatePage(lang) {
+      document.getElementById('translate-menu').style.display = 'none';
+
+      if (lang === 'en') {
+        var frame = document.querySelector('.goog-te-banner-frame');
+        if (frame) {
+          var btn = frame.contentDocument.querySelector('.goog-te-button button');
+          if (btn) btn.click();
+        }
+        window.location.href = window.location.href.replace(/#googtrans\([^)]+\)/, '');
+        return;
+      }
+
+      function setCookie(name, value) {
+        var date = new Date();
+        date.setTime(date.getTime() + (365*24*60*60*1000));
+        document.cookie = name + '=' + value +
+          ';expires=' + date.toUTCString() +
+          ';path=/;domain=.' + window.location.hostname;
+      }
+
+      setCookie('googtrans', '/en/' + lang);
+      window.location.reload();
+    }
+
+    function toggleTranslateMenu() {
+      var menu = document.getElementById('translate-menu');
+      menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    }
+
+    document.addEventListener('click', function(e) {
+      var wrapper = document.getElementById('translate-wrapper');
+      if (wrapper && !wrapper.contains(e.target)) {
+        var menu = document.getElementById('translate-menu');
+        if (menu) menu.style.display = 'none';
+      }
+    });
+
+    // ── Theme management ──
+    function getTheme() {
+      return localStorage.getItem('theme') || 'light';
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      var btn = document.getElementById('theme-toggle');
+      if (btn) {
+        btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';
+        btn.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+      }
+    }
+
+    function toggleTheme() {
+      var current = getTheme();
+      var next = current === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', next);
+      applyTheme(next);
+    }
+
+    // Sync button icon with current theme on load
+    applyTheme(getTheme());
+  </script>
+
+  <script type="text/javascript"
+    src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
+  </script>
 </body>
 </html>

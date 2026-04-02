@@ -60,8 +60,14 @@ def _header_html() -> str:
 
 # ---------- public API ----------
 
-def send_welcome_email(email: str) -> bool:
-    """Send a welcome email to a new subscriber. Returns True on success."""
+FALLBACK_FROM = "onboarding@resend.dev"
+
+
+def send_welcome_email(email: str) -> dict:
+    """Send a welcome email to a new subscriber.
+
+    Returns a dict: {"success": bool, "id": str|None, "error": str|None}
+    """
     html = f"""<!DOCTYPE html>
 <html>
 <body style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333;">
@@ -74,18 +80,60 @@ def send_welcome_email(email: str) -> bool:
 </body>
 </html>"""
 
+    from_addr = f"{SITE_NAME} <{FROM_EMAIL}>"
+    print(f"Sending to: {email}")
+    print(f"From: {FROM_EMAIL}")
+
     try:
-        resend.Emails.send({
-            "from": FROM_EMAIL,
+        r = resend.Emails.send({
+            "from": from_addr,
             "to": email,
             "subject": f"Welcome to {SITE_NAME}!",
             "html": html,
         })
-        logger.info("Welcome email sent to %s", email)
-        return True
+        print(f"Resend result: {r}")
+        logger.info("Welcome email sent to %s (id=%s)", email, r.get("id"))
+        return {"success": True, "id": r.get("id"), "error": None}
     except Exception as exc:
-        logger.error("Failed to send welcome email to %s: %s", email, exc)
-        return False
+        err_msg = str(exc)
+        logger.error("Failed to send welcome email from %s to %s: %s", FROM_EMAIL, email, exc)
+        print(f"Primary send failed: {err_msg}")
+
+        # Domain not verified — retry with Resend's shared sender
+        if any(kw in err_msg.lower() for kw in ("domain", "not verified", "not found", "sender")):
+            print(f"Falling back to {FALLBACK_FROM}")
+            try:
+                r = resend.Emails.send({
+                    "from": FALLBACK_FROM,
+                    "to": email,
+                    "subject": f"Welcome to {SITE_NAME}!",
+                    "html": html,
+                })
+                print(f"Resend result (fallback): {r}")
+                logger.info("Welcome email sent via fallback to %s (id=%s)", email, r.get("id"))
+                return {"success": True, "id": r.get("id"), "error": None}
+            except Exception as exc2:
+                err2 = str(exc2)
+                logger.error("Fallback send also failed to %s: %s", email, exc2)
+                print(f"Fallback send failed: {err2}")
+                return {"success": False, "id": None, "error": err2}
+
+        return {"success": False, "id": None, "error": err_msg}
+
+
+def send_test_email(to_email: str) -> dict:
+    """Send a quick test email using Resend's shared sender."""
+    try:
+        params = {
+            "from": FALLBACK_FROM,
+            "to": [to_email],
+            "subject": "AI & Tech Daily - Test Email",
+            "html": "<h1>Test email working!</h1>",
+        }
+        r = resend.Emails.send(params)
+        return {"success": True, "id": r.get("id")}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 
 def send_daily_digest(articles: list) -> int:
@@ -156,7 +204,7 @@ def send_daily_digest(articles: list) -> int:
 
         try:
             resend.Emails.send({
-                "from": FROM_EMAIL,
+                "from": f"{SITE_NAME} <{FROM_EMAIL}>",
                 "to": email,
                 "subject": f"{SITE_NAME} — Daily Digest",
                 "html": html,

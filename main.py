@@ -3,8 +3,13 @@ import re
 from datetime import datetime
 from typing import Optional
 
+import secrets
+import csv
+import io
+
 from fastapi import FastAPI, Depends, Request, Header, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, EmailStr
@@ -19,6 +24,25 @@ def tpl_globals():
 load_dotenv()
 
 API_KEY = os.getenv("WEBSITE_API_KEY", "changeme")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
+
+security = HTTPBasic()
+
+
+def verify_admin(credentials: HTTPBasicCredentials = Depends(security)):
+    is_correct_user = secrets.compare_digest(
+        credentials.username.encode("utf8"), b"admin"
+    )
+    is_correct_pass = secrets.compare_digest(
+        credentials.password.encode("utf8"), ADMIN_PASSWORD.encode("utf8")
+    )
+    if not (is_correct_user and is_correct_pass):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
 
 VALID_EMAIL_RE = re.compile(r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$")
 
@@ -67,7 +91,10 @@ def homepage(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/article/{article_id}", response_class=HTMLResponse)
 def article_detail(article_id: int, request: Request, db: Session = Depends(get_db)):
-    article = db.query(NewsArticle).filter(NewsArticle.id == article_id).first()
+    article = db.query(NewsArticle).filter(
+        NewsArticle.id == article_id,
+        NewsArticle.is_published == True
+    ).first()
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
     related_articles = (
@@ -98,51 +125,45 @@ def subscribe(payload: SubscribeRequest, db: Session = Depends(get_db)):
     if not VALID_EMAIL_RE.match(email):
         return JSONResponse(
             status_code=400,
-            content={"status": "invalid_email", "message": "Please enter a valid email."},
+            content={"status": "error", "message": "Please enter a valid email address."},
         )
 
     existing = db.query(Subscriber).filter(Subscriber.email == email).first()
     if existing:
         if existing.is_active:
-            return {"status": "already_subscribed", "message": "You're already subscribed!"}
+            return JSONResponse(content={"status": "already_subscribed", "message": "You are already subscribed!"})
         # Reactivate lapsed subscriber
         existing.is_active = True
         existing.subscribed_at = datetime.utcnow()
         db.commit()
-        from newsletter import send_welcome_email
-        send_welcome_email(email)
-        return {"status": "success", "message": "Check your inbox!"}
+        try:
+            from newsletter import send_welcome_email
+            send_welcome_email(email)
+        except Exception as e:
+            print(f"Welcome email failed: {e}")
+        return JSONResponse(content={"status": "success", "message": "Welcome back! You are resubscribed."})
 
     subscriber = Subscriber(email=email, subscribed_at=datetime.utcnow())
     db.add(subscriber)
     db.commit()
-    from newsletter import send_welcome_email
-    send_welcome_email(email)
-    return {"status": "success", "message": "Check your inbox!"}
+    try:
+        from newsletter import send_welcome_email
+        send_welcome_email(email)
+    except Exception as e:
+        print(f"Welcome email failed: {e}")
+    return JSONResponse(content={"status": "success", "message": "You are subscribed! Check your inbox."})
 
 
 @app.get("/unsubscribe", response_class=HTMLResponse)
-def unsubscribe(email: str, token: str, db: Session = Depends(get_db)):
-    from newsletter import _unsubscribe_token
-    if token != _unsubscribe_token(email):
-        raise HTTPException(status_code=400, detail="Invalid unsubscribe link.")
+def unsubscribe(email: str, request: Request, db: Session = Depends(get_db)):
     subscriber = db.query(Subscriber).filter(Subscriber.email == email).first()
     if subscriber:
         subscriber.is_active = False
         db.commit()
-    html = """<!DOCTYPE html>
-<html>
-<head><title>Unsubscribed</title><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center">
-  <div class="text-center p-8">
-    <p class="text-5xl mb-4">👋</p>
-    <h1 class="text-2xl font-bold text-gray-800 mb-2">You have been unsubscribed.</h1>
-    <p class="text-gray-500 mb-6">You won't receive any more emails from us.</p>
-    <a href="/" class="text-indigo-600 hover:text-indigo-800 font-medium">← Back to home</a>
-  </div>
-</body>
-</html>"""
-    return HTMLResponse(content=html)
+    return templates.TemplateResponse(
+        "unsubscribe.html",
+        {"request": request, "email": email}
+    )
 
 
 class ArticlePayload(BaseModel):
@@ -204,31 +225,137 @@ def publish_articles(
 
 
 @app.get("/admin", response_class=HTMLResponse)
-def admin_page(request: Request, db: Session = Depends(get_db)):
+def admin_page(
+    request: Request,
+    db: Session = Depends(get_db),
+    username: str = Depends(verify_admin),
+):
+    subscribers = db.query(Subscriber).order_by(Subscriber.subscribed_at.desc()).all()
     total_articles = db.query(NewsArticle).count()
-    latest_articles = (
-        db.query(NewsArticle)
-        .order_by(NewsArticle.published_date.desc())
-        .limit(10)
-        .all()
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_articles = db.query(NewsArticle).filter(
+        NewsArticle.published_date >= today_start
+    ).count()
+    active_subs = sum(1 for s in subscribers if s.is_active)
+    inactive_subs = len(subscribers) - active_subs
+
+    articles = db.query(NewsArticle).order_by(
+        NewsArticle.published_date.desc()
+    ).limit(50).all()
+
+    return templates.TemplateResponse(
+        "admin.html",
+        {
+            "request": request,
+            "subscribers": subscribers,
+            "total_articles": total_articles,
+            "today_articles": today_articles,
+            "active_subs": active_subs,
+            "inactive_subs": inactive_subs,
+            "total_subs": len(subscribers),
+            "articles": articles,
+        },
     )
-    total_subscribers = db.query(Subscriber).count()
-    rows = "".join(
-        f"<tr><td>{a.id}</td><td>{a.title}</td><td>{a.published_date.strftime('%Y-%m-%d %H:%M')}</td><td>{'Yes' if a.is_published else 'No'}</td></tr>"
-        for a in latest_articles
+
+
+@app.post("/admin/subscriber/{subscriber_id}/suspend")
+async def suspend_subscriber(
+        subscriber_id: int,
+        db: Session = Depends(get_db),
+        username: str = Depends(verify_admin)):
+    subscriber = db.query(Subscriber).filter(
+        Subscriber.id == subscriber_id
+    ).first()
+    if not subscriber:
+        return JSONResponse({"status": "error", "message": "Not found"})
+    subscriber.is_active = not subscriber.is_active
+    db.commit()
+    status = "active" if subscriber.is_active else "suspended"
+    return JSONResponse({
+        "status": "success",
+        "message": f"Subscriber {status}",
+        "is_active": subscriber.is_active
+    })
+
+
+@app.delete("/admin/subscriber/{subscriber_id}")
+async def delete_subscriber(
+        subscriber_id: int,
+        db: Session = Depends(get_db),
+        username: str = Depends(verify_admin)):
+    subscriber = db.query(Subscriber).filter(
+        Subscriber.id == subscriber_id
+    ).first()
+    if not subscriber:
+        return JSONResponse({"status": "error", "message": "Not found"})
+    db.delete(subscriber)
+    db.commit()
+    return JSONResponse({"status": "success", "message": "Subscriber deleted"})
+
+
+@app.post("/admin/article/{article_id}/toggle")
+async def toggle_article(
+        article_id: int,
+        db: Session = Depends(get_db),
+        username: str = Depends(verify_admin)):
+    article = db.query(NewsArticle).filter(
+        NewsArticle.id == article_id
+    ).first()
+    if not article:
+        return JSONResponse({"status": "error", "message": "Not found"})
+    article.is_published = not article.is_published
+    db.commit()
+    return JSONResponse({
+        "status": "success",
+        "is_published": article.is_published
+    })
+
+
+@app.delete("/admin/article/{article_id}")
+async def delete_article(
+        article_id: int,
+        db: Session = Depends(get_db),
+        username: str = Depends(verify_admin)):
+    article = db.query(NewsArticle).filter(
+        NewsArticle.id == article_id
+    ).first()
+    if not article:
+        return JSONResponse({"status": "error", "message": "Not found"})
+    db.delete(article)
+    db.commit()
+    return JSONResponse({"status": "success"})
+
+
+@app.get("/admin/test-email")
+async def test_email(
+        email: str,
+        username: str = Depends(verify_admin)):
+    from newsletter import send_test_email
+    result = send_test_email(email)
+    return JSONResponse(result)
+
+
+@app.get("/admin/export")
+def export_subscribers(
+    db: Session = Depends(get_db),
+    username: str = Depends(verify_admin),
+):
+    subscribers = db.query(Subscriber).order_by(Subscriber.subscribed_at.desc()).all()
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Email", "Subscribed Date", "Status"])
+    for s in subscribers:
+        writer.writerow([
+            s.email,
+            s.subscribed_at.strftime("%Y-%m-%d %H:%M") if s.subscribed_at else "",
+            "Active" if s.is_active else "Inactive",
+        ])
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=subscribers.csv"},
     )
-    html = f"""<!DOCTYPE html><html><head><title>Admin</title>
-    <style>body{{font-family:sans-serif;padding:2rem}}table{{border-collapse:collapse;width:100%}}
-    th,td{{border:1px solid #ccc;padding:.5rem;text-align:left}}th{{background:#f0f0f0}}</style>
-    </head><body>
-    <h1>Admin Dashboard</h1>
-    <p><strong>Total articles:</strong> {total_articles}</p>
-    <p><strong>Total subscribers:</strong> {total_subscribers}</p>
-    <h2>Latest 10 Articles</h2>
-    <table><thead><tr><th>ID</th><th>Title</th><th>Published</th><th>Published?</th></tr></thead>
-    <tbody>{rows}</tbody></table>
-    </body></html>"""
-    return HTMLResponse(content=html)
 
 
 @app.get("/api/articles")
