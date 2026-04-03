@@ -358,6 +358,52 @@ def export_subscribers(
     )
 
 
+@app.get("/api/trigger-digest")
+async def trigger_digest_endpoint(
+        request: Request,
+        db: Session = Depends(get_db)):
+    # Verify API key
+    api_key = request.headers.get("X-API-Key", "")
+    expected = os.environ.get("WEBSITE_API_KEY", "")
+    if not api_key or api_key != expected:
+        return JSONResponse(
+            {"status": "error", "message": "Unauthorized"},
+            status_code=401
+        )
+
+    try:
+        from newsletter import send_daily_digest
+
+        # Get latest 5 published articles
+        articles = db.query(NewsArticle).filter(
+            NewsArticle.is_published == True
+        ).order_by(
+            NewsArticle.published_date.desc()
+        ).limit(5).all()
+
+        article_dicts = [{
+            "title": a.title,
+            "summary": a.summary,
+            "category": a.category,
+            "source_url": a.source_url or "",
+        } for a in articles]
+
+        sent = send_daily_digest(article_dicts)
+
+        return JSONResponse({
+            "status": "success",
+            "emails_sent": sent,
+            "articles_used": len(article_dicts),
+        })
+
+    except Exception as e:
+        logger.error(f"Trigger digest error: {e}")
+        return JSONResponse(
+            {"status": "error", "message": str(e)},
+            status_code=500
+        )
+
+
 @app.get("/api/articles")
 def api_articles(db: Session = Depends(get_db)):
     articles = (

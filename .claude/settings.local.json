@@ -24,7 +24,9 @@
       "Bash(systemctl status:*)",
       "Bash(ls /home/claudeProj/ainews/.env*)",
       "Bash(python:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(sudo systemctl:*)",
+      "Bash(systemctl is-active:*)"
     ]
   }
 }
