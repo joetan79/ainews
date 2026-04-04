@@ -1,5 +1,6 @@
 import os
 import re
+import logging
 from datetime import datetime
 from typing import Optional
 
@@ -17,6 +18,8 @@ from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 
 from database import get_db, init_db, NewsArticle, Subscriber
+
+logger = logging.getLogger(__name__)
 
 def tpl_globals():
     return {"now": datetime.utcnow()}
@@ -202,6 +205,7 @@ def publish_articles(
         raise HTTPException(status_code=401, detail="Invalid API key")
 
     saved = []
+    saved_dicts = []
     skipped = []
     for item in payload.articles:
         existing = db.query(NewsArticle).filter(NewsArticle.title == item.title).first()
@@ -219,8 +223,23 @@ def publish_articles(
         db.add(article)
         db.flush()
         saved.append(article.id)
+        saved_dicts.append({
+            "title": item.title,
+            "summary": item.summary or "",
+            "category": item.category or "AI & Tech",
+            "source_url": item.source_url or "",
+        })
 
     db.commit()
+
+    if saved_dicts:
+        try:
+            from newsletter import send_daily_digest
+            sent = send_daily_digest(saved_dicts)
+            logger.info(f"Auto digest after publish: {sent} emails sent")
+        except Exception as e:
+            logger.error(f"Auto digest error: {e}")
+
     return {"status": "ok", "saved": len(saved), "ids": saved, "skipped": skipped}
 
 

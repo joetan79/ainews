@@ -10,19 +10,25 @@ import os
 import hmac
 import hashlib
 import logging
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(Path(__file__).parent / ".env")
 
 import resend
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
-FROM_EMAIL = os.getenv("FROM_EMAIL", "noreply@example.com")
+FROM_EMAIL = os.getenv("FROM_EMAIL", "noreply@abai.cloud")
 SITE_NAME = os.getenv("SITE_NAME", "AI & Tech Daily")
 SITE_URL = os.getenv("SITE_URL", "http://localhost:8000").rstrip("/")
 SECRET_KEY = os.getenv("WEBSITE_API_KEY", "changeme")
 
 resend.api_key = RESEND_API_KEY
+
+
+def get_from_email() -> str:
+    """Read FROM_EMAIL fresh from environment each call."""
+    return os.environ.get("FROM_EMAIL", "noreply@abai.cloud")
 
 logger = logging.getLogger(__name__)
 
@@ -80,9 +86,9 @@ def send_welcome_email(email: str) -> dict:
 </body>
 </html>"""
 
-    from_addr = f"{SITE_NAME} <{FROM_EMAIL}>"
+    from_addr = f"{SITE_NAME} <{get_from_email()}>"
     print(f"Sending to: {email}")
-    print(f"From: {FROM_EMAIL}")
+    print(f"From: {get_from_email()}")
 
     try:
         r = resend.Emails.send({
@@ -179,6 +185,10 @@ def send_daily_digest(articles: list) -> int:
     finally:
         db.close()
 
+    print(f"Resend API key loaded: {bool(resend.api_key)}")
+    print(f"FROM_EMAIL: {get_from_email()}")
+    print(f"Subscribers to send: {len(subscriber_emails)}")
+
     if not subscriber_emails:
         logger.info("No active subscribers — skipping digest.")
         return 0
@@ -204,7 +214,7 @@ def send_daily_digest(articles: list) -> int:
 
         try:
             resend.Emails.send({
-                "from": f"{SITE_NAME} <{FROM_EMAIL}>",
+                "from": f"{SITE_NAME} <{get_from_email()}>",
                 "to": email,
                 "subject": f"{SITE_NAME} — Daily Digest",
                 "html": html,
