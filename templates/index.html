@@ -104,23 +104,22 @@
           </div>
           <!-- Body -->
           <div style="padding:1.75rem 2rem 1.875rem;">
-            <h3 style="font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:var(--text-primary); line-height:1.25; margin-bottom:0.875rem;">
+            <h3 class="card-title" style="font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; line-height:1.25; margin-bottom:0.875rem;">
               <a href="/article/{{ featured.id }}"
                  style="text-decoration:none; color:inherit; transition:color 0.2s;"
                  onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-primary)'">
                 {{ featured.title }}
               </a>
             </h3>
-            <p style="font-family:'DM Sans',sans-serif; font-size:0.9375rem; color:var(--text-muted); line-height:1.7; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:1.25rem;">
+            <p class="card-summary" style="font-family:'DM Sans',sans-serif; font-size:0.9375rem; line-height:1.7; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:1.25rem;">
               {{ featured.summary if featured.summary else featured.title }}
             </p>
             <div style="display:flex; align-items:center; justify-content:space-between;">
-              <span style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--text-faint);">
+              <span class="card-meta" style="font-family:'JetBrains Mono',monospace; font-size:0.7rem;">
                 {{ featured.published_date.strftime('%I:%M %p UTC') }}
               </span>
-              <a href="/article/{{ featured.id }}"
-                 style="font-family:'DM Sans',sans-serif; font-size:0.875rem; font-weight:600; color:var(--accent); text-decoration:none; transition:color 0.2s;"
-                 onmouseover="this.style.color='var(--accent-dark)'" onmouseout="this.style.color='var(--accent)'">
+              <a href="/article/{{ featured.id }}" class="read-more"
+                 style="font-family:'DM Sans',sans-serif; font-size:0.875rem; transition:color 0.2s;">
                 Read more →
               </a>
             </div>
@@ -134,23 +133,22 @@
           <article class="news-card article-card" style="background:var(--bg-card); border:1px solid var(--border); border-radius:1rem; display:flex; flex-direction:column; overflow:hidden;">
             <div style="padding:1.375rem 1.5rem 1.5rem; display:flex; flex-direction:column; flex:1;">
               <span class="category-badge" style="margin-bottom:0.875rem;">{{ article.category.upper() }}</span>
-              <h3 style="font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:700; color:var(--text-primary); line-height:1.35; margin-bottom:0.625rem; flex-shrink:0;">
+              <h3 class="card-title" style="font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:700; line-height:1.35; margin-bottom:0.625rem; flex-shrink:0;">
                 <a href="/article/{{ article.id }}"
                    style="text-decoration:none; color:inherit; transition:color 0.2s;"
                    onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-primary)'">
                   {{ article.title }}
                 </a>
               </h3>
-              <p style="font-family:'DM Sans',sans-serif; font-size:0.875rem; color:var(--text-dim); line-height:1.65; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; flex:1;">
+              <p class="card-summary" style="font-family:'DM Sans',sans-serif; font-size:0.875rem; line-height:1.65; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; flex:1;">
                 {{ article.summary if article.summary else article.title }}
               </p>
               <div style="margin-top:1rem; display:flex; align-items:center; justify-content:space-between;">
-                <span style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--text-faint);">
+                <span class="card-meta" style="font-family:'JetBrains Mono',monospace; font-size:0.7rem;">
                   {{ article.published_date.strftime('%I:%M %p') }}
                 </span>
-                <a href="/article/{{ article.id }}"
-                   style="font-family:'DM Sans',sans-serif; font-size:0.8125rem; font-weight:600; color:var(--accent); text-decoration:none; transition:color 0.2s;"
-                   onmouseover="this.style.color='var(--accent-dark)'" onmouseout="this.style.color='var(--accent)'">
+                <a href="/article/{{ article.id }}" class="read-more"
+                   style="font-family:'DM Sans',sans-serif; font-size:0.8125rem; transition:color 0.2s;">
                   Read more →
                 </a>
               </div>
@@ -167,23 +165,22 @@
           <article class="news-card article-card" style="background:var(--bg-card); border:1px solid var(--border); border-radius:1rem; display:flex; flex-direction:column; overflow:hidden;">
             <div style="padding:1.375rem 1.5rem 1.5rem; display:flex; flex-direction:column; flex:1;">
               <span class="category-badge" style="margin-bottom:0.875rem;">{{ article.category.upper() }}</span>
-              <h3 style="font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:700; color:var(--text-primary); line-height:1.35; margin-bottom:0.625rem; flex-shrink:0;">
+              <h3 class="card-title" style="font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:700; line-height:1.35; margin-bottom:0.625rem; flex-shrink:0;">
                 <a href="/article/{{ article.id }}"
                    style="text-decoration:none; color:inherit; transition:color 0.2s;"
                    onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-primary)'">
                   {{ article.title }}
                 </a>
               </h3>
-              <p style="font-family:'DM Sans',sans-serif; font-size:0.875rem; color:var(--text-dim); line-height:1.65; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; flex:1;">
+              <p class="card-summary" style="font-family:'DM Sans',sans-serif; font-size:0.875rem; line-height:1.65; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; flex:1;">
                 {{ article.summary if article.summary else article.title }}
               </p>
               <div style="margin-top:1rem; display:flex; align-items:center; justify-content:space-between;">
-                <span style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--text-faint);">
+                <span class="card-meta" style="font-family:'JetBrains Mono',monospace; font-size:0.7rem;">
                   {{ article.published_date.strftime('%I:%M %p') }}
                 </span>
-                <a href="/article/{{ article.id }}"
-                   style="font-family:'DM Sans',sans-serif; font-size:0.8125rem; font-weight:600; color:var(--accent); text-decoration:none; transition:color 0.2s;"
-                   onmouseover="this.style.color='var(--accent-dark)'" onmouseout="this.style.color='var(--accent)'">
+                <a href="/article/{{ article.id }}" class="read-more"
+                   style="font-family:'DM Sans',sans-serif; font-size:0.8125rem; transition:color 0.2s;">
                   Read more →
                 </a>
               </div>
@@ -200,7 +197,7 @@
     <div style="text-align:center; padding:7rem 1rem;">
       <div style="font-family:'JetBrains Mono',monospace; font-size:2.5rem; color:var(--border); margin-bottom:1.25rem;">[ ]</div>
       <p style="font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:var(--text-faint); margin-bottom:0.5rem;">No articles yet</p>
-      <p style="font-family:'DM Sans',sans-serif; font-size:0.9rem; color:#283548;">Check back soon — ABbot is gathering the latest AI news.</p>
+      <p style="font-family:'DM Sans',sans-serif; font-size:0.9rem; color:var(--text-muted);">Check back soon — ABbot is gathering the latest AI news.</p>
     </div>
   {% endif %}
 

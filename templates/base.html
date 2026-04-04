@@ -135,42 +135,105 @@
   </script>
 
   <style>
-    /* ── Light mode (default) ── */
+    /* ============================================
+       LIGHT MODE (default)
+       ============================================ */
     :root {
-      --bg-primary:   #ffffff;
-      --bg-secondary: #F8FAFC;
-      --bg-card:      #ffffff;
-      --border:       #E2E8F0;
-      --border-color: #E2E8F0;
-      --text-primary: #0F172A;
-      --text-secondary: #64748B;
-      --text-muted:   #94A3B8;
-      --text-dim:     #64748B;
-      --text-faint:   #94A3B8;
-      --navbar-bg:    rgba(255,255,255,0.95);
-      --card-shadow:  0 1px 3px rgba(0,0,0,0.1);
-      --accent:       #06B6D4;
-      --accent-dark:  #0891B2;
+      --bg-primary:    #FFFFFF;
+      --bg-secondary:  #F1F5F9;
+      --bg-card:       #FFFFFF;
+      --bg-navbar:     rgba(255,255,255,0.98);
+
+      --text-primary:   #0A0A0A;
+      --text-secondary: #1E293B;
+      --text-muted:     #475569;
+      --text-light:     #64748B;
+
+      --border-color:   #CBD5E1;
+      --card-shadow:    0 2px 8px rgba(0,0,0,0.10);
+
+      --accent:         #0891B2;
+      --accent-hover:   #0E7490;
+      --accent-light:   #E0F2FE;
+      --accent-text:    #0369A1;
+
+      --badge-bg:       #E0F2FE;
+      --badge-text:     #0369A1;
+
+      --btn-primary-bg: #0891B2;
+      --btn-primary-text: #FFFFFF;
+
+      --input-bg:       #FFFFFF;
+      --input-border:   #CBD5E1;
+      --input-text:     #0A0A0A;
+      --input-placeholder: #94A3B8;
+
+      --hero-text:      #0A0A0A;
+      --hero-sub:       #1E293B;
+      --date-header:    #0A0A0A;
+      --link-color:     #0891B2;
+      --footer-bg:      #F8FAFC;
+      --footer-text:    #475569;
+
+      /* Legacy aliases */
+      --border:         #CBD5E1;
+      --text-dim:       #475569;
+      --text-faint:     #64748B;
+      --navbar-bg:      rgba(255,255,255,0.98);
+      --accent-dark:    #0E7490;
     }
 
-    /* ── Dark mode ── */
+    /* ============================================
+       DARK MODE
+       ============================================ */
     [data-theme="dark"] {
-      --bg-primary:   #0A0A0B;
-      --bg-secondary: #111116;
-      --bg-card:      #111116;
-      --border:       #1E1E2E;
-      --border-color: #1E1E2E;
-      --text-primary: #FAFAFA;
-      --text-secondary: #94A3B8;
-      --text-muted:   #94A3B8;
-      --text-dim:     #64748B;
-      --text-faint:   #334155;
-      --navbar-bg:    rgba(10,10,11,0.95);
-      --card-shadow:  0 1px 3px rgba(0,0,0,0.4);
-      --accent:       #06B6D4;
-      --accent-dark:  #0891B2;
+      --bg-primary:    #0A0A0B;
+      --bg-secondary:  #111116;
+      --bg-card:       #16161A;
+      --bg-navbar:     rgba(10,10,11,0.97);
+
+      --text-primary:   #F8FAFC;
+      --text-secondary: #CBD5E1;
+      --text-muted:     #94A3B8;
+      --text-light:     #64748B;
+
+      --border-color:   #1E293B;
+      --card-shadow:    0 2px 8px rgba(0,0,0,0.4);
+
+      --accent:         #06B6D4;
+      --accent-hover:   #22D3EE;
+      --accent-light:   #164E63;
+      --accent-text:    #06B6D4;
+
+      --badge-bg:       #164E63;
+      --badge-text:     #67E8F9;
+
+      --btn-primary-bg: #06B6D4;
+      --btn-primary-text: #0A0A0B;
+
+      --input-bg:       #1E1E2E;
+      --input-border:   #2D2D3E;
+      --input-text:     #F8FAFC;
+      --input-placeholder: #64748B;
+
+      --hero-text:      #F8FAFC;
+      --hero-sub:       #CBD5E1;
+      --date-header:    #F8FAFC;
+      --link-color:     #06B6D4;
+      --footer-bg:      #111116;
+      --footer-text:    #64748B;
+
+      /* Legacy aliases */
+      --border:         #1E293B;
+      --text-dim:       #94A3B8;
+      --text-faint:     #64748B;
+      --navbar-bg:      rgba(10,10,11,0.97);
+      --accent-dark:    #22D3EE;
     }
 
+    /* ============================================
+       GLOBAL STYLES
+       ============================================ */
     *, *::before, *::after { box-sizing: border-box; }
 
     html {
@@ -180,11 +243,13 @@
 
     body {
       font-family: 'DM Sans', sans-serif;
-      background: var(--bg-primary);
+      background-color: var(--bg-primary);
       color: var(--text-primary);
       margin: 0;
       animation: pageIn 0.25s ease both;
-      transition: background 0.3s ease, color 0.3s ease;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      -webkit-font-smoothing: antialiased;
+      top: 0 !important;
     }
 
     @keyframes pageIn {
@@ -209,10 +274,21 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* Card hover */
+    /* ============================================
+       COMPONENT CLASSES
+       ============================================ */
+
+    /* Navbar */
+    .nav-blur {
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      background: var(--bg-navbar);
+    }
+
+    /* Cards */
     .news-card {
       background: var(--bg-card);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-color);
       box-shadow: var(--card-shadow);
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.3s ease;
     }
@@ -222,27 +298,25 @@
       border-color: rgba(6,182,212,0.25) !important;
     }
 
-    /* Navbar blur backdrop */
-    .nav-blur {
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      background: var(--navbar-bg);
+    /* Card title */
+    .card-title {
+      color: var(--text-primary) !important;
     }
 
-    /* Hero section adapts to theme */
-    .hero-section {
-      background: linear-gradient(135deg, #EFF6FF 0%, #F0FDFA 100%);
-    }
-    [data-theme="dark"] .hero-section {
-      background: linear-gradient(135deg, #0F172A 0%, #0A0A0B 100%);
+    /* Card summary */
+    .card-summary {
+      color: var(--text-secondary) !important;
     }
 
-    /* Category badge shimmer */
+    /* Card meta (date, source) */
+    .card-meta {
+      color: var(--text-muted) !important;
+    }
+
+    /* Category badge */
     .category-badge {
-      background: linear-gradient(90deg, #06B6D4 0%, #22D3EE 40%, #06B6D4 100%);
-      background-size: 200% auto;
-      animation: shimmer 3.5s linear infinite;
-      color: #0A0A0B;
+      background: var(--badge-bg) !important;
+      color: var(--badge-text) !important;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.65rem;
       font-weight: 700;
@@ -251,9 +325,43 @@
       border-radius: 9999px;
       display: inline-block;
     }
-    @keyframes shimmer {
-      0%   { background-position: 200% center; }
-      100% { background-position: -200% center; }
+
+    /* Read more link */
+    .read-more {
+      color: var(--accent) !important;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .read-more:hover {
+      color: var(--accent-hover) !important;
+    }
+
+    /* Hero section */
+    .hero-section {
+      background: linear-gradient(135deg, #EFF6FF 0%, #F0FDFA 100%);
+    }
+    [data-theme="dark"] .hero-section {
+      background: linear-gradient(135deg, #0F172A 0%, #0A0A0B 100%);
+    }
+
+    /* Article page */
+    .article-container {
+      background: var(--bg-card);
+      box-shadow: var(--card-shadow);
+    }
+
+    .article-title {
+      color: var(--text-primary) !important;
+    }
+
+    .article-body {
+      color: var(--text-secondary) !important;
+      line-height: 1.85;
+      white-space: pre-wrap;
+    }
+
+    .article-meta {
+      color: var(--text-muted) !important;
     }
 
     /* Subscribe button pulse */
@@ -289,23 +397,27 @@
       border-color: rgba(6,182,212,0.5) !important;
     }
 
-    /* Spin animation for loading */
+    /* Spin animation */
     @keyframes spin { to { transform: rotate(360deg); } }
     .spin { animation: spin 0.8s linear infinite; }
 
     /* Dark mode translate dropdown */
     [data-theme="dark"] #translate-menu {
-      background: #1E1E2E;
-      border-color: #2D2D3E;
+      background: #1E1E2E !important;
+      border-color: #2D2D3E !important;
     }
-    [data-theme="dark"] #translate-menu a {
-      color: #FAFAFA !important;
+    [data-theme="dark"] #lang-list div {
+      color: #F8FAFC !important;
     }
-    [data-theme="dark"] #translate-menu a:hover {
+    [data-theme="dark"] #lang-list div:hover {
       background: #2D2D3E !important;
     }
 
-    body { top: 0 !important; }
+    /* Scrollbar dark mode */
+    [data-theme="dark"] {
+      scrollbar-color: #2D2D3E #0A0A0B;
+    }
+
     .skiptranslate { display: none !important; }
   </style>
 </head>
@@ -412,7 +524,7 @@
       <p style="font-family: 'DM Sans', sans-serif; font-size: 0.8125rem; color: var(--text-faint);">
         &copy; {{ now.year if now else '2026' }} AI &amp; Tech Daily. All rights reserved.
       </p>
-      <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #283548; font-style: italic;">
+      <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--footer-text); font-style: italic;">
         Powered by ABbot
       </p>
     </div>
@@ -430,7 +542,7 @@
       document.documentElement.setAttribute('data-theme', theme);
       var btn = document.getElementById('theme-toggle');
       if (btn) {
-        btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';
+        btn.textContent = theme === 'dark' ? '☀️' : '🌙';
         btn.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
       }
     }
