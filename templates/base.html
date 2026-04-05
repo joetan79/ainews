@@ -275,15 +275,194 @@
     }
 
     /* ============================================
+       NAVBAR - Mobile First
+       ============================================ */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: var(--bg-navbar);
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .navbar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .navbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .navbar-logo-text {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-primary);
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+
+    .navbar-logo-badge {
+      font-size: 10px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+      display: none;
+    }
+
+    .navbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      padding: 0;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg-secondary);
+    }
+
+    .translate-btn {
+      height: 34px;
+      padding: 0 10px;
+      border-radius: 8px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .translate-btn:hover {
+      background: var(--accent-light);
+    }
+
+    .translate-btn .translate-icon {
+      font-size: 13px;
+    }
+
+    .translate-btn .translate-text {
+      display: none;
+    }
+
+    .subscribe-nav-btn {
+      height: 34px;
+      padding: 0 12px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .subscribe-nav-btn:hover {
+      background: var(--accent-hover);
+      color: white;
+    }
+
+    #translate-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 0;
+      z-index: 99999;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      min-width: 200px;
+      max-height: 70vh;
+      overflow-y: auto;
+      display: none;
+    }
+
+    body {
+      padding-top: 52px;
+    }
+
+    /* Small mobile */
+    @media (max-width: 380px) {
+      .navbar-logo-text { font-size: 14px; }
+      .subscribe-nav-btn { padding: 0 8px; font-size: 11px; }
+      .translate-btn { padding: 0 8px; }
+    }
+
+    /* Medium mobile and up */
+    @media (min-width: 480px) {
+      .translate-btn .translate-text { display: inline; }
+    }
+
+    /* Tablet and up */
+    @media (min-width: 640px) {
+      .navbar-inner { height: 60px; padding: 0 24px; }
+      .navbar-logo-text { font-size: 18px; }
+      .navbar-logo-badge { display: inline; }
+      .theme-toggle-btn { width: 38px; height: 38px; font-size: 16px; }
+      .translate-btn { height: 38px; padding: 0 14px; font-size: 13px; }
+      .subscribe-nav-btn { height: 38px; padding: 0 16px; font-size: 13px; }
+      body { padding-top: 60px; }
+    }
+
+    /* Desktop */
+    @media (min-width: 1024px) {
+      .navbar-inner { height: 64px; gap: 12px; }
+      .navbar-logo-text { font-size: 20px; }
+      .navbar-actions { gap: 10px; }
+      .theme-toggle-btn { width: 40px; height: 40px; }
+      .translate-btn { height: 40px; padding: 0 16px; font-size: 14px; }
+      .subscribe-nav-btn { height: 40px; padding: 0 20px; font-size: 14px; }
+      body { padding-top: 64px; }
+    }
+
+    /* ============================================
        COMPONENT CLASSES
        ============================================ */
-
-    /* Navbar */
-    .nav-blur {
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      background: var(--bg-navbar);
-    }
 
     /* Cards */
     .news-card {
@@ -339,9 +518,52 @@
     /* Hero section */
     .hero-section {
       background: linear-gradient(135deg, #EFF6FF 0%, #F0FDFA 100%);
+      padding: 40px 16px 48px;
     }
     [data-theme="dark"] .hero-section {
       background: linear-gradient(135deg, #0F172A 0%, #0A0A0B 100%);
+    }
+    @media (min-width: 640px) {
+      .hero-section { padding: 60px 24px 72px; }
+    }
+    @media (min-width: 1024px) {
+      .hero-section { padding: 80px 24px 96px; }
+    }
+
+    /* Hero title */
+    .hero-title {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    @media (min-width: 640px) {
+      .hero-title { font-size: 42px; }
+    }
+    @media (min-width: 1024px) {
+      .hero-title { font-size: 56px; }
+    }
+
+    /* News grid */
+    .news-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      padding: 0 16px;
+    }
+    @media (min-width: 640px) {
+      .news-grid {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 0 24px;
+        gap: 20px;
+      }
+    }
+    @media (min-width: 1024px) {
+      .news-grid {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: 1200px;
+        margin: 0 auto;
+        gap: 24px;
+      }
     }
 
     /* Article page */
@@ -424,94 +646,59 @@
 <body>
 
   <!-- Fixed Navbar -->
-  <nav class="nav-blur fixed top-0 left-0 right-0 z-50" style="border-bottom: 1px solid var(--border);">
-    <div style="max-width: 1280px; margin: 0 auto; padding: 0 1.5rem;">
-      <div style="display: flex; align-items: center; justify-content: space-between; height: 64px;">
+  <nav class="navbar">
+    <div class="navbar-inner">
 
-        <!-- Logo -->
-        <a href="/" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none;">
-          <span style="font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--text-primary); transition: color 0.2s;"
-                onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-primary)'">
-            AI &amp; Tech Daily
-          </span>
-          <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 500; color: var(--accent); background: rgba(6,182,212,0.12); border: 1px solid rgba(6,182,212,0.2); padding: 0.15rem 0.5rem; border-radius: 9999px; letter-spacing: 0.08em; display: none;"
-                class="sm:inline-block">
-            DAILY
-          </span>
-        </a>
+      <!-- Logo -->
+      <a href="/" class="navbar-logo">
+        <span class="navbar-logo-text">AI &amp; Tech Daily</span>
+        <span class="navbar-logo-badge">AI &amp; Tech</span>
+      </a>
 
-        <!-- Nav actions -->
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <!-- Actions -->
+      <div class="navbar-actions">
 
-          <!-- Dark/Light Mode Toggle -->
+        <!-- Theme Toggle -->
+        <button
+          id="theme-toggle"
+          class="theme-toggle-btn"
+          onclick="toggleTheme()"
+          title="Toggle dark/light mode">
+          🌙
+        </button>
+
+        <!-- Translate -->
+        <div style="position:relative;" id="translate-wrapper">
           <button
-            id="theme-toggle"
-            onclick="toggleTheme()"
-            style="padding:8px 12px; border-radius:8px;
-                   border:1px solid var(--border); background:transparent;
-                   cursor:pointer; font-size:16px;
-                   color: var(--text-primary);
-                   transition: all 0.2s;"
-            title="Toggle dark/light mode">
-            🌙
+            id="translate-btn"
+            class="translate-btn"
+            onclick="toggleTranslateMenu(event)"
+            title="Translate page">
+            <span class="translate-icon">🌐</span>
+            <span class="translate-text">Translate</span>
           </button>
 
-          <!-- Translate Button -->
-          <div id="translate-wrapper"
-               style="position:relative; display:inline-block;">
-            <button
-              id="translate-btn"
-              onclick="toggleTranslateMenu(event)"
-              style="display:flex; align-items:center; gap:6px;
-                     padding:8px 14px; border-radius:8px;
-                     border:1px solid var(--accent);
-                     background:transparent;
-                     color:var(--accent); cursor:pointer;
-                     font-size:14px; font-weight:500;
-                     transition:all 0.2s;">
-              🌐 Translate
-            </button>
-
-            <div id="translate-menu"
-                 style="display:none; position:absolute;
-                        top:calc(100% + 8px); right:0;
-                        z-index:99999;
-                        background:white;
-                        border:1px solid #E2E8F0;
-                        border-radius:12px;
-                        box-shadow:0 8px 32px rgba(0,0,0,0.15);
-                        min-width:220px; overflow:hidden;">
-              <div style="padding:8px 0;">
-                <div style="padding:8px 16px; font-size:11px;
-                            color:#94A3B8; font-weight:700;
-                            text-transform:uppercase;
-                            letter-spacing:1px;">
-                  Select Language
-                </div>
-                <div id="lang-list"></div>
+          <!-- Language Dropdown -->
+          <div id="translate-menu">
+            <div style="padding:8px 0;">
+              <div style="padding:6px 14px; font-size:10px; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:1px;">
+                Language
               </div>
+              <div id="lang-list"></div>
             </div>
           </div>
-
-          <!-- Hidden Google Translate element -->
-          <div id="google_translate_element"
-               style="display:none; position:absolute;
-                      top:-9999px; left:-9999px;"></div>
-
-          <a href="/#subscribe"
-             style="display: inline-flex; align-items: center; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 600; color: var(--accent); border: 1px solid rgba(6,182,212,0.5); padding: 0.5rem 1.125rem; border-radius: 0.625rem; text-decoration: none; transition: background 0.2s, border-color 0.2s;"
-             onmouseover="this.style.background='rgba(6,182,212,0.1)'; this.style.borderColor='var(--accent)'"
-             onmouseout="this.style.background='transparent'; this.style.borderColor='rgba(6,182,212,0.5)'">
-            Subscribe
-          </a>
         </div>
+
+        <!-- Hidden Google Translate element -->
+        <div id="google_translate_element"
+             style="display:none; position:absolute; top:-9999px; left:-9999px;"></div>
+
+        <!-- Subscribe -->
+        <a href="#subscribe" class="subscribe-nav-btn">Subscribe</a>
 
       </div>
     </div>
   </nav>
-
-  <!-- Spacer for fixed navbar -->
-  <div style="height: 64px;"></div>
 
   <!-- Page content -->
   <main style="flex: 1;">
