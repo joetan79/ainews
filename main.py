@@ -345,13 +345,57 @@ async def delete_article(
     return JSONResponse({"status": "success"})
 
 
-@app.get("/admin/test-email")
-async def test_email(
-        email: str,
+class BroadcastRequest(BaseModel):
+    subject: str
+    body: str
+
+
+@app.post("/admin/broadcast")
+async def broadcast_email(
+        payload: BroadcastRequest,
+        db: Session = Depends(get_db),
         username: str = Depends(verify_admin)):
-    from newsletter import send_test_email
-    result = send_test_email(email)
-    return JSONResponse(result)
+    import resend
+    from newsletter import get_from_email, SITE_NAME, _footer_html
+
+    subject = payload.subject.strip()
+    body = payload.body.strip()
+    if not subject or not body:
+        return JSONResponse({"status": "error", "message": "Subject and body are required"})
+
+    subscribers = db.query(Subscriber).filter(Subscriber.is_active == True).all()
+    if not subscribers:
+        return JSONResponse({"status": "success", "sent": 0, "message": "No active subscribers"})
+
+    from_addr = f"{SITE_NAME} <{get_from_email()}>"
+    sent = 0
+    errors = []
+    for s in subscribers:
+        html = f"""<!DOCTYPE html>
+<html>
+<body style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333;">
+  <p style="font-size:15px;line-height:1.7;white-space:pre-wrap;">{body}</p>
+  {_footer_html(s.email)}
+</body>
+</html>"""
+        try:
+            resend.Emails.send({
+                "from": from_addr,
+                "to": s.email,
+                "subject": subject,
+                "html": html,
+            })
+            sent += 1
+        except Exception as exc:
+            logger.error("Broadcast failed for %s: %s", s.email, exc)
+            errors.append(str(exc))
+
+    return JSONResponse({
+        "status": "success",
+        "sent": sent,
+        "errors": len(errors),
+        "message": f"Sent {sent}/{len(subscribers)} emails",
+    })
 
 
 @app.get("/admin/export")

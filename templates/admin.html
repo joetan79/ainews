@@ -24,29 +24,27 @@
 
   <main class="max-w-7xl mx-auto px-6 py-8">
 
-    <!-- Email Test -->
-    <div style="background:#F0FDF4; border:1px solid #BBF7D0;
-                border-radius:8px; padding:16px;
-                margin-bottom:24px;">
-      <h3 style="margin:0 0 12px; color:#065F46;">
-        Email Test
-      </h3>
-      <div style="display:flex; gap:8px;">
-        <input type="email" id="test-email-input"
-               placeholder="Enter email to test"
-               style="flex:1; padding:8px 12px;
-                      border:1px solid #D1FAE5;
-                      border-radius:6px;">
-        <button onclick="sendTestEmail()"
-                style="padding:8px 16px;
-                       background:#06B6D4; color:white;
-                       border:none; border-radius:6px;
-                       cursor:pointer;">
-          Send Test
-        </button>
+    <!-- Broadcast Email -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8">
+      <div class="mb-4">
+        <h2 class="text-base font-semibold text-white">Send Broadcast Email</h2>
+        <p class="text-xs text-gray-500 mt-0.5">Will be sent to <span class="text-cyan-400 font-semibold">{{ active_subs }} active subscriber{{ 's' if active_subs != 1 else '' }}</span></p>
       </div>
-      <div id="test-result" style="margin-top:8px;
-                                    font-size:13px;"></div>
+      <div class="flex flex-col gap-3 max-w-2xl">
+        <input type="text" id="broadcast-subject"
+               placeholder="Subject"
+               class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600" />
+        <textarea id="broadcast-body" rows="5"
+                  placeholder="Message body (plain text)"
+                  class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600 resize-y"></textarea>
+        <div class="flex items-center gap-3">
+          <button onclick="sendBroadcast()"
+                  class="bg-cyan-500 hover:bg-cyan-400 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors cursor-pointer border-none">
+            Send to All Subscribers
+          </button>
+          <span id="broadcast-result" class="text-sm"></span>
+        </div>
+      </div>
     </div>
 
     <!-- Stats Cards -->
@@ -269,21 +267,28 @@
       }
     }
 
-    async function sendTestEmail() {
-      const email = document.getElementById('test-email-input').value;
-      if (!email) { alert('Please enter an email'); return; }
-      const result = document.getElementById('test-result');
-      result.innerHTML = 'Sending...';
+    async function sendBroadcast() {
+      const subject = document.getElementById('broadcast-subject').value.trim();
+      const body = document.getElementById('broadcast-body').value.trim();
+      const result = document.getElementById('broadcast-result');
+      if (!subject) { alert('Please enter a subject'); return; }
+      if (!body) { alert('Please enter a message body'); return; }
+      if (!confirm(`Send this email to all active subscribers?`)) return;
+      result.innerHTML = '<span class="text-gray-400">Sending...</span>';
       try {
-        const r = await fetch(`/admin/test-email?email=${email}`);
+        const r = await fetch('/admin/broadcast', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({subject, body}),
+        });
         const data = await r.json();
-        if (data.success) {
-          result.innerHTML = '<span style="color:#065F46">Test email sent! Check inbox.</span>';
+        if (data.status === 'success') {
+          result.innerHTML = '<span class="text-emerald-400">Sent to ' + data.sent + ' subscriber' + (data.sent !== 1 ? 's' : '') + '.</span>';
         } else {
-          result.innerHTML = '<span style="color:#991B1B">Failed: ' + data.error + '</span>';
+          result.innerHTML = '<span class="text-red-400">Failed: ' + data.message + '</span>';
         }
       } catch(e) {
-        result.innerHTML = '<span style="color:#991B1B">Error: ' + e.message + '</span>';
+        result.innerHTML = '<span class="text-red-400">Error: ' + e.message + '</span>';
       }
     }
 

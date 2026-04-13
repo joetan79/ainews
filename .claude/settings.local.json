@@ -26,7 +26,10 @@
       "Bash(python:*)",
       "Bash(python3:*)",
       "Bash(sudo systemctl:*)",
-      "Bash(systemctl is-active:*)"
+      "Bash(systemctl is-active:*)",
+      "Bash(pkill -f \"uvicorn main:app\")",
+      "Bash(nohup uvicorn:*)",
+      "Bash(echo \"PID: $!\")"
     ]
   }
 }
