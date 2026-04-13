@@ -1,3 +1,6 @@
+# Master/sensitive docs
+*_MASTER.md
+
 # Secrets
 .env
 .env.*
@@ -14,6 +17,9 @@ venv/
 *.sqlite
 *.log
 ainews.db
+
+# Data
+data/
 
 # OS
 .DS_Store
