@@ -745,6 +745,37 @@
     applyTheme(getTheme());
   </script>
 
+  <!-- 3-tier image fallback chain -->
+  <script>
+    function handleImgError(img, domain, icon) {
+      if (domain && !img.dataset.faviconTried) {
+        img.dataset.faviconTried = '1';
+        img.classList.add('article-thumb--favicon');
+        img.src = 'https://www.google.com/s2/favicons?domain=' + domain + '&sz=64';
+        img.onerror = function() { handleFaviconError(img, icon); };
+        return;
+      }
+      showIconFallback(img, icon);
+    }
+
+    function handleFaviconError(img, icon) {
+      showIconFallback(img, icon);
+    }
+
+    function showIconFallback(img, icon) {
+      var wrap = img.closest('.article-image-wrap, .article-hero-wrap');
+      if (!wrap) return;
+      var isHero = wrap.classList.contains('article-hero-wrap');
+      var div = document.createElement('div');
+      div.className = isHero
+        ? 'article-hero-img article-hero-img--icon'
+        : 'article-thumb article-thumb--icon';
+      div.innerHTML = '<span class="category-icon' + (isHero ? ' category-icon--hero' : '') + '">'
+        + (icon || '🌐') + '</span>';
+      img.parentNode.replaceChild(div, img);
+    }
+  </script>
+
   <!-- Google Translate widget (hidden, cookie-driven) -->
   <script>
     function googleTranslateElementInit() {

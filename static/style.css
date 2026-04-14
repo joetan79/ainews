@@ -18,3 +18,138 @@ body {
 .prose {
   line-height: 1.75;
 }
+
+/* ── Article Card Thumbnail ──────────────────────────────── */
+
+.article-image-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+  background: var(--image-bg, #1a1a2e);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.article-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+  animation: imgFadeIn 0.4s ease forwards;
+  opacity: 0;
+}
+
+@keyframes imgFadeIn {
+  to { opacity: 1; }
+}
+
+.article-thumb:hover {
+  transform: scale(1.03);
+}
+
+.article-thumb--favicon {
+  object-fit: contain;
+  padding: 20%;
+  background: var(--image-bg, #1a1a2e);
+}
+
+.article-thumb--fallback,
+.article-thumb--icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--card-bg, #0f0f1a) 0%, var(--accent-dim, #1a1a3e) 100%);
+}
+
+.favicon-img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  opacity: 0.85;
+}
+
+.category-icon {
+  font-size: 2.4rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+  user-select: none;
+}
+
+/* ── Article Hero Image ──────────────────────────────────── */
+
+.article-hero-wrap {
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--image-bg, #1a1a2e);
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.article-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  animation: imgFadeIn 0.5s ease forwards;
+  opacity: 0;
+}
+
+.article-hero-img--fallback,
+.article-hero-img--icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--card-bg, #0f0f1a) 0%, var(--accent-dim, #1a1a3e) 100%);
+  opacity: 1;
+  animation: none;
+}
+
+.favicon-img--hero {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  opacity: 0.7;
+}
+
+.category-icon--hero {
+  font-size: 4rem;
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5));
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .article-image-wrap  { aspect-ratio: 16 / 8; }
+  .article-hero-wrap   { aspect-ratio: 4 / 3; border-radius: 8px; }
+  .category-icon       { font-size: 2rem; }
+  .category-icon--hero { font-size: 3rem; }
+  .favicon-img         { width: 40px; height: 40px; }
+  .favicon-img--hero   { width: 64px; height: 64px; }
+}
+
+/* ── Dark / Light mode ───────────────────────────────────── */
+
+[data-theme="light"] .article-image-wrap,
+[data-theme="light"] .article-hero-wrap {
+  --image-bg:   #e8e8f0;
+  --card-bg:    #f0f0f8;
+  --accent-dim: #d0d0e8;
+}
+
+[data-theme="light"] .article-thumb--fallback,
+[data-theme="light"] .article-thumb--icon,
+[data-theme="light"] .article-hero-img--fallback,
+[data-theme="light"] .article-hero-img--icon {
+  background: linear-gradient(135deg, #e8e8f0 0%, #d8d8ee 100%);
+}
+
+[data-theme="light"] .category-icon,
+[data-theme="light"] .category-icon--hero {
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+}

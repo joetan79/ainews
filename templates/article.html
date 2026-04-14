@@ -53,6 +53,38 @@
       <div style="height:1px; background:linear-gradient(90deg, var(--accent), rgba(6,182,212,0.3) 40%, transparent 80%); margin-bottom:1.875rem;"></div>
     </div>
 
+    <!-- Article Hero Image -->
+    {% set icon = {'AI Models':'🤖','Business':'💼','Policy':'⚖️','Research':'🔬','Robotics':'🦾','Hardware':'💡','Crypto':'₿'}.get(article.category, '🌐') %}
+    {% set domain = article.source_domain or '' %}
+    <div style="padding:0 2.5rem;">
+      <div class="article-hero-wrap">
+        {% if article.image_url %}
+          <img
+            class="article-hero-img"
+            src="{{ article.image_url }}"
+            alt="{{ article.title }}"
+            referrerpolicy="no-referrer"
+            loading="eager"
+            onerror="handleImgError(this, '{{ domain }}', '{{ icon }}')"
+          >
+        {% elif domain %}
+          <div class="article-hero-img article-hero-img--fallback">
+            <img
+              class="favicon-img favicon-img--hero"
+              src="https://www.google.com/s2/favicons?domain={{ domain }}&sz=128"
+              alt="{{ domain }}"
+              referrerpolicy="no-referrer"
+              onerror="handleFaviconError(this, '{{ icon }}')"
+            >
+          </div>
+        {% else %}
+          <div class="article-hero-img article-hero-img--icon">
+            <span class="category-icon category-icon--hero">{{ icon }}</span>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
     <!-- Article Body -->
     <div style="padding:0 2.5rem 2rem;">
       <div class="article-body" style="font-family:'DM Sans',sans-serif; font-size:1rem;">{{ article.summary }}</div>

@@ -29,7 +29,8 @@
       "Bash(systemctl is-active:*)",
       "Bash(pkill -f \"uvicorn main:app\")",
       "Bash(nohup uvicorn:*)",
-      "Bash(echo \"PID: $!\")"
+      "Bash(echo \"PID: $!\")",
+      "Bash(curl -s --retry 3 --retry-delay 1 http://127.0.0.1:8000/)"
     ]
   }
 }

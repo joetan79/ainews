@@ -174,6 +174,8 @@ class ArticlePayload(BaseModel):
     summary: str
     category: Optional[str] = "AI & Tech"
     source_url: Optional[str] = None
+    image_url: Optional[str] = None
+    source_domain: Optional[str] = None
 
 
 class PublishRequest(BaseModel):
@@ -217,6 +219,8 @@ def publish_articles(
             summary=item.summary if item.summary and len(item.summary) >= 20 else item.title,
             category=item.category or "AI & Tech",
             source_url=item.source_url,
+            image_url=item.image_url,
+            source_domain=item.source_domain,
             published_date=datetime.utcnow(),
             is_published=True,
         )

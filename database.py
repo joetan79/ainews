@@ -22,6 +22,8 @@ class NewsArticle(Base):
     summary = Column(Text, nullable=False)
     category = Column(String, default="AI & Tech")
     source_url = Column(String, nullable=True)
+    image_url = Column(String, nullable=True)
+    source_domain = Column(String, nullable=True)
     published_date = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
     is_published = Column(Boolean, default=True)
