@@ -63,11 +63,6 @@
 
       <p id="subscribe-msg-hero" style="display:none; margin-top:0.75rem; font-size:0.8375rem; font-family:'DM Sans',sans-serif;"></p>
 
-      {% if subscriber_count and subscriber_count > 0 %}
-      <p style="margin-top:0.875rem; font-size:0.75rem; color:var(--text-dim); font-family:'DM Sans',sans-serif;">
-        Join {{ subscriber_count }} readers already subscribed
-      </p>
-      {% endif %}
     </div>
 
   </div>
@@ -316,11 +311,6 @@
       </button>
     </form>
     <p id="subscribe-msg-bottom" style="display:none; margin-top:0.875rem; font-size:0.8375rem; font-family:'DM Sans',sans-serif;"></p>
-    {% if subscriber_count and subscriber_count > 0 %}
-    <p style="margin-top:1rem; font-size:0.8125rem; color:var(--text-faint); font-family:'DM Sans',sans-serif;">
-      Join {{ subscriber_count }} readers already subscribed
-    </p>
-    {% endif %}
   </div>
 </section>
 

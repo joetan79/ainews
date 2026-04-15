@@ -3,13 +3,16 @@ import re
 import logging
 from datetime import datetime
 from typing import Optional
+from urllib.parse import urlparse
 
 import secrets
 import csv
 import io
 
-from fastapi import FastAPI, Depends, Request, Header, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+import httpx
+
+from fastapi import FastAPI, Depends, Request, Header, HTTPException, Form
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -60,6 +63,40 @@ def on_startup():
 
 
 # ---------- helpers ----------
+
+def extract_og_image(url: str) -> Optional[str]:
+    try:
+        headers = {"User-Agent": "Mozilla/5.0 (compatible; ABbot/1.0; +https://abai.cloud)"}
+        r = httpx.get(url, timeout=4, follow_redirects=True, headers=headers)
+        if r.status_code != 200:
+            return None
+        html = r.text
+        if 'og:image' not in html:
+            return None
+        start = html.find('property="og:image"')
+        if start == -1:
+            start = html.find("property='og:image'")
+        if start == -1:
+            return None
+        content_start = html.find('content="', start)
+        if content_start == -1:
+            content_start = html.find("content='", start)
+            if content_start == -1:
+                return None
+            quote_char = "'"
+        else:
+            quote_char = '"'
+        content_start += len('content=') + 1
+        content_end = html.find(quote_char, content_start)
+        if content_end == -1:
+            return None
+        image_url = html[content_start:content_end].strip()
+        if not image_url.startswith("http") or len(image_url) > 500:
+            return None
+        return image_url
+    except Exception:
+        return None
+
 
 def group_articles_by_date(articles):
     grouped = {}
@@ -252,6 +289,7 @@ def admin_page(
     request: Request,
     db: Session = Depends(get_db),
     username: str = Depends(verify_admin),
+    msg: Optional[str] = None,
 ):
     subscribers = db.query(Subscriber).order_by(Subscriber.subscribed_at.desc()).all()
     total_articles = db.query(NewsArticle).count()
@@ -277,7 +315,48 @@ def admin_page(
             "inactive_subs": inactive_subs,
             "total_subs": len(subscribers),
             "articles": articles,
+            "msg": msg,
         },
+    )
+
+
+@app.post("/admin/add-article")
+async def add_article_manual(
+    request: Request,
+    db: Session = Depends(get_db),
+    username: str = Depends(verify_admin),
+    title: str = Form(...),
+    summary: str = Form(...),
+    category: str = Form("General"),
+    source_url: str = Form(...),
+    published_date: Optional[str] = Form(None),
+):
+    parsed_date = datetime.utcnow()
+    if published_date:
+        try:
+            parsed_date = datetime.fromisoformat(published_date)
+        except ValueError:
+            pass
+
+    image_url = extract_og_image(source_url)
+    source_domain = urlparse(source_url).netloc or None
+
+    article = NewsArticle(
+        title=title,
+        summary=summary,
+        category=category,
+        source_url=source_url,
+        image_url=image_url,
+        source_domain=source_domain,
+        published_date=parsed_date,
+        is_published=True,
+    )
+    db.add(article)
+    db.commit()
+
+    return RedirectResponse(
+        url=f"/admin?msg=Article+added%3A+{title[:60].replace(' ', '+')}",
+        status_code=303,
     )
 
 
