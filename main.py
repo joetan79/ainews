@@ -113,7 +113,7 @@ def homepage(request: Request, db: Session = Depends(get_db)):
     articles = (
         db.query(NewsArticle)
         .filter(NewsArticle.is_published == True)
-        .order_by(NewsArticle.published_date.desc())
+        .order_by(NewsArticle.published_date.desc(), NewsArticle.id.desc())
         .limit(20)
         .all()
     )
@@ -140,7 +140,7 @@ def article_detail(article_id: int, request: Request, db: Session = Depends(get_
     related_articles = (
         db.query(NewsArticle)
         .filter(NewsArticle.is_published == True, NewsArticle.id != article_id)
-        .order_by(NewsArticle.published_date.desc())
+        .order_by(NewsArticle.published_date.desc(), NewsArticle.id.desc())
         .limit(3)
         .all()
     )
@@ -213,6 +213,7 @@ class ArticlePayload(BaseModel):
     source_url: Optional[str] = None
     image_url: Optional[str] = None
     source_domain: Optional[str] = None
+    published: Optional[str] = None
 
 
 class PublishRequest(BaseModel):
@@ -251,6 +252,22 @@ def publish_articles(
         if existing:
             skipped.append(existing.id)
             continue
+        raw_date = item.published
+        if raw_date:
+            if isinstance(raw_date, str):
+                try:
+                    pub_date = datetime.fromisoformat(raw_date.replace("Z", "+00:00"))
+                    # Strip timezone info for SQLite compatibility
+                    pub_date = pub_date.replace(tzinfo=None)
+                except Exception:
+                    pub_date = datetime.utcnow()
+            elif isinstance(raw_date, datetime):
+                pub_date = raw_date.replace(tzinfo=None)
+            else:
+                pub_date = datetime.utcnow()
+        else:
+            pub_date = datetime.utcnow()
+
         article = NewsArticle(
             title=item.title,
             summary=item.summary if item.summary and len(item.summary) >= 20 else item.title,
@@ -258,7 +275,7 @@ def publish_articles(
             source_url=item.source_url,
             image_url=item.image_url,
             source_domain=item.source_domain,
-            published_date=datetime.utcnow(),
+            published_date=pub_date,
             is_published=True,
         )
         db.add(article)
@@ -290,7 +307,7 @@ def past_coverage(request: Request, db: Session = Depends(get_db)):
         row.id for row in (
             db.query(NewsArticle.id)
             .filter(NewsArticle.is_published == True)
-            .order_by(NewsArticle.published_date.desc())
+            .order_by(NewsArticle.published_date.desc(), NewsArticle.id.desc())
             .limit(20)
             .all()
         )
@@ -303,7 +320,7 @@ def past_coverage(request: Request, db: Session = Depends(get_db)):
             NewsArticle.published_date >= cutoff,
             ~NewsArticle.id.in_(latest_ids) if latest_ids else True,
         )
-        .order_by(NewsArticle.published_date.desc())
+        .order_by(NewsArticle.published_date.desc(), NewsArticle.id.desc())
         .all()
     )
     grouped = group_articles_by_date(articles)
@@ -378,14 +395,8 @@ async def add_article_manual(
     summary: str = Form(...),
     category: str = Form("General"),
     source_url: str = Form(...),
-    published_date: Optional[str] = Form(None),
 ):
-    parsed_date = datetime.utcnow()
-    if published_date:
-        try:
-            parsed_date = datetime.fromisoformat(published_date)
-        except ValueError:
-            pass
+    published_date = datetime.utcnow()
 
     image_url = extract_og_image(source_url)
     source_domain = urlparse(source_url).netloc or None
@@ -397,7 +408,7 @@ async def add_article_manual(
         source_url=source_url,
         image_url=image_url,
         source_domain=source_domain,
-        published_date=parsed_date,
+        published_date=published_date,
         is_published=True,
     )
     db.add(article)
@@ -573,7 +584,7 @@ async def trigger_digest_endpoint(
         articles = db.query(NewsArticle).filter(
             NewsArticle.is_published == True
         ).order_by(
-            NewsArticle.published_date.desc()
+            NewsArticle.published_date.desc(), NewsArticle.id.desc()
         ).limit(5).all()
 
         article_dicts = [{
@@ -604,7 +615,7 @@ def api_articles(db: Session = Depends(get_db)):
     articles = (
         db.query(NewsArticle)
         .filter(NewsArticle.is_published == True)
-        .order_by(NewsArticle.published_date.desc())
+        .order_by(NewsArticle.published_date.desc(), NewsArticle.id.desc())
         .limit(20)
         .all()
     )
