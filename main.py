@@ -1,7 +1,7 @@
 import os
 import re
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 from urllib.parse import urlparse
 
@@ -284,21 +284,67 @@ def publish_articles(
     return {"status": "ok", "saved": len(saved), "ids": saved, "skipped": skipped}
 
 
+@app.get("/past-coverage", response_class=HTMLResponse)
+def past_coverage(request: Request, db: Session = Depends(get_db)):
+    latest_ids = [
+        row.id for row in (
+            db.query(NewsArticle.id)
+            .filter(NewsArticle.is_published == True)
+            .order_by(NewsArticle.published_date.desc())
+            .limit(20)
+            .all()
+        )
+    ]
+    cutoff = datetime.utcnow() - timedelta(days=14)
+    articles = (
+        db.query(NewsArticle)
+        .filter(
+            NewsArticle.is_published == True,
+            NewsArticle.published_date >= cutoff,
+            ~NewsArticle.id.in_(latest_ids) if latest_ids else True,
+        )
+        .order_by(NewsArticle.published_date.desc())
+        .all()
+    )
+    grouped = group_articles_by_date(articles)
+    return templates.TemplateResponse(
+        "past_coverage.html", {
+            "request": request,
+            "grouped_articles": grouped,
+            **tpl_globals(),
+        }
+    )
+
+
 @app.get("/admin", response_class=HTMLResponse)
 def admin_page(
     request: Request,
     db: Session = Depends(get_db),
     username: str = Depends(verify_admin),
     msg: Optional[str] = None,
+    sub_page: int = 1,
 ):
-    subscribers = db.query(Subscriber).order_by(Subscriber.subscribed_at.desc()).all()
+    import math
+    total_subs = db.query(Subscriber).count()
+    sub_total_pages = max(1, math.ceil(total_subs / 10))
+    sub_page = max(1, min(sub_page, sub_total_pages))
+
+    subscribers = (
+        db.query(Subscriber)
+        .order_by(Subscriber.subscribed_at.desc())
+        .limit(10)
+        .offset((sub_page - 1) * 10)
+        .all()
+    )
+
+    active_subs = db.query(Subscriber).filter(Subscriber.is_active == True).count()
+    inactive_subs = total_subs - active_subs
+
     total_articles = db.query(NewsArticle).count()
     today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
     today_articles = db.query(NewsArticle).filter(
         NewsArticle.published_date >= today_start
     ).count()
-    active_subs = sum(1 for s in subscribers if s.is_active)
-    inactive_subs = len(subscribers) - active_subs
 
     articles = db.query(NewsArticle).order_by(
         NewsArticle.published_date.desc()
@@ -309,11 +355,14 @@ def admin_page(
         {
             "request": request,
             "subscribers": subscribers,
+            "sub_page": sub_page,
+            "sub_total": total_subs,
+            "sub_total_pages": sub_total_pages,
             "total_articles": total_articles,
             "today_articles": today_articles,
             "active_subs": active_subs,
             "inactive_subs": inactive_subs,
-            "total_subs": len(subscribers),
+            "total_subs": total_subs,
             "articles": articles,
             "msg": msg,
         },

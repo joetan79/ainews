@@ -31,63 +31,83 @@
     </div>
     {% endif %}
 
-    <!-- Manually Add Article -->
-    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8">
-      <div class="mb-4">
-        <h2 class="text-base font-semibold text-white">Manually Add Article</h2>
-        <p class="text-xs text-gray-500 mt-0.5">Paste a URL and fill in the details to publish an article immediately</p>
-      </div>
-      <form method="POST" action="/admin/add-article" class="flex flex-col gap-3 max-w-2xl">
-        <input type="text" name="title" placeholder="Title" required
-               class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600" />
-        <textarea name="summary" rows="3" placeholder="Summary" required
-                  class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600 resize-y"></textarea>
-        <select name="category"
-                class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500">
-          <option value="AI Models">AI Models</option>
-          <option value="Business">Business</option>
-          <option value="Policy">Policy</option>
-          <option value="Research">Research</option>
-          <option value="Robotics">Robotics</option>
-          <option value="Hardware">Hardware</option>
-          <option value="Crypto">Crypto</option>
-          <option value="General" selected>General</option>
-        </select>
-        <input type="url" name="source_url" placeholder="Source URL (original article link)" required
-               class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600" />
-        <div class="flex flex-col gap-1">
-          <label class="text-xs text-gray-500">Published Date</label>
-          <input type="datetime-local" name="published_date"
-                 class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500" />
-        </div>
+    <!-- Manually Add Article (collapsible) -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl mb-8 overflow-hidden">
+      <button type="button"
+              onclick="toggleSection('add-article-body', 'add-article-arrow')"
+              class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-800/40 transition-colors"
+              style="background:transparent; border:none; cursor:pointer;">
         <div>
-          <button type="submit"
-                  class="bg-cyan-500 hover:bg-cyan-400 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors cursor-pointer border-none">
-            Add Article
-          </button>
+          <h2 class="text-base font-semibold text-white">Manually Add Article</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Paste a URL and fill in the details to publish an article immediately</p>
         </div>
-      </form>
+        <span id="add-article-arrow" style="color:#9CA3AF; font-size:12px; transition:transform 0.3s ease; display:inline-block; flex-shrink:0; margin-left:12px;">▶</span>
+      </button>
+      <div id="add-article-body" style="max-height:0; overflow:hidden; transition:max-height 0.35s ease;">
+        <div class="px-6 pb-6">
+          <form method="POST" action="/admin/add-article" class="flex flex-col gap-3 max-w-2xl">
+            <input type="text" name="title" placeholder="Title" required
+                   class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600" />
+            <textarea name="summary" rows="3" placeholder="Summary" required
+                      class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600 resize-y"></textarea>
+            <select name="category"
+                    class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500">
+              <option value="AI Models">AI Models</option>
+              <option value="Business">Business</option>
+              <option value="Policy">Policy</option>
+              <option value="Research">Research</option>
+              <option value="Robotics">Robotics</option>
+              <option value="Hardware">Hardware</option>
+              <option value="Crypto">Crypto</option>
+              <option value="General" selected>General</option>
+            </select>
+            <input type="url" name="source_url" placeholder="Source URL (original article link)" required
+                   class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600" />
+            <div class="flex flex-col gap-1">
+              <label class="text-xs text-gray-500">Published Date</label>
+              <input type="datetime-local" name="published_date"
+                     class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500" />
+            </div>
+            <div>
+              <button type="submit"
+                      class="bg-cyan-500 hover:bg-cyan-400 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors cursor-pointer border-none">
+                Add Article
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
-    <!-- Broadcast Email -->
-    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8">
-      <div class="mb-4">
-        <h2 class="text-base font-semibold text-white">Send Broadcast Email</h2>
-        <p class="text-xs text-gray-500 mt-0.5">Will be sent to <span class="text-cyan-400 font-semibold">{{ active_subs }} active subscriber{{ 's' if active_subs != 1 else '' }}</span></p>
-      </div>
-      <div class="flex flex-col gap-3 max-w-2xl">
-        <input type="text" id="broadcast-subject"
-               placeholder="Subject"
-               class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600" />
-        <textarea id="broadcast-body" rows="5"
-                  placeholder="Message body (plain text)"
-                  class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600 resize-y"></textarea>
-        <div class="flex items-center gap-3">
-          <button onclick="sendBroadcast()"
-                  class="bg-cyan-500 hover:bg-cyan-400 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors cursor-pointer border-none">
-            Send to All Subscribers
-          </button>
-          <span id="broadcast-result" class="text-sm"></span>
+    <!-- Broadcast Email (collapsible) -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl mb-8 overflow-hidden">
+      <button type="button"
+              onclick="toggleSection('broadcast-body-wrap', 'broadcast-arrow')"
+              class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-800/40 transition-colors"
+              style="background:transparent; border:none; cursor:pointer;">
+        <div>
+          <h2 class="text-base font-semibold text-white">Send Broadcast Email</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Will be sent to <span class="text-cyan-400 font-semibold">{{ active_subs }} active subscriber{{ 's' if active_subs != 1 else '' }}</span></p>
+        </div>
+        <span id="broadcast-arrow" style="color:#9CA3AF; font-size:12px; transition:transform 0.3s ease; display:inline-block; flex-shrink:0; margin-left:12px;">▶</span>
+      </button>
+      <div id="broadcast-body-wrap" style="max-height:0; overflow:hidden; transition:max-height 0.35s ease;">
+        <div class="px-6 pb-6">
+          <div class="flex flex-col gap-3 max-w-2xl">
+            <input type="text" id="broadcast-subject"
+                   placeholder="Subject"
+                   class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600" />
+            <textarea id="broadcast-body" rows="5"
+                      placeholder="Message body (plain text)"
+                      class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600 resize-y"></textarea>
+            <div class="flex items-center gap-3">
+              <button onclick="sendBroadcast()"
+                      class="bg-cyan-500 hover:bg-cyan-400 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors cursor-pointer border-none">
+                Send to All Subscribers
+              </button>
+              <span id="broadcast-result" class="text-sm"></span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -192,6 +212,27 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Pagination controls -->
+      <div class="px-6 py-4 border-t border-gray-800 flex flex-wrap items-center justify-between gap-3">
+        <span class="text-sm text-gray-400">
+          Showing page {{ sub_page }} of {{ sub_total_pages }}&nbsp;&nbsp;|&nbsp;&nbsp;Total: {{ sub_total }} subscribers
+        </span>
+        <div class="flex items-center gap-2">
+          {% if sub_page > 1 %}
+          <a href="/admin?sub_page={{ sub_page - 1 }}"
+             class="text-sm text-gray-300 bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-700 transition-colors">
+            ← Previous
+          </a>
+          {% endif %}
+          {% if sub_page < sub_total_pages %}
+          <a href="/admin?sub_page={{ sub_page + 1 }}"
+             class="text-sm text-gray-300 bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-700 transition-colors">
+            Next →
+          </a>
+          {% endif %}
+        </div>
+      </div>
     </div>
 
     <!-- Articles Management -->
@@ -274,6 +315,19 @@
   </main>
 
   <script>
+    function toggleSection(contentId, arrowId) {
+      var content = document.getElementById(contentId);
+      var arrow = document.getElementById(arrowId);
+      var isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+      if (isOpen) {
+        content.style.maxHeight = '0';
+        arrow.style.transform = 'rotate(0deg)';
+      } else {
+        content.style.maxHeight = content.scrollHeight + 'px';
+        arrow.style.transform = 'rotate(90deg)';
+      }
+    }
+
     function filterTable(query) {
       const q = query.toLowerCase();
       document.querySelectorAll('.sub-row').forEach(row => {
