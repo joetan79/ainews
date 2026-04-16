@@ -64,6 +64,16 @@ def on_startup():
 
 # ---------- helpers ----------
 
+def proxy_image_url(url: Optional[str]) -> Optional[str]:
+    """Wrap an image URL through images.weserv.nl to bypass hotlink protection."""
+    if not url:
+        return None
+    if "weserv.nl" in url:
+        return url
+    from urllib.parse import quote
+    return f"https://images.weserv.nl/?url={quote(url, safe='')}&w=800&q=85"
+
+
 def extract_og_image(url: str) -> Optional[str]:
     try:
         headers = {"User-Agent": "Mozilla/5.0 (compatible; ABbot/1.0; +https://abai.cloud)"}
@@ -273,7 +283,7 @@ def publish_articles(
             summary=item.summary if item.summary and len(item.summary) >= 20 else item.title,
             category=item.category or "AI & Tech",
             source_url=item.source_url,
-            image_url=item.image_url,
+            image_url=proxy_image_url(item.image_url),
             source_domain=item.source_domain,
             published_date=pub_date,
             is_published=True,
@@ -398,7 +408,7 @@ async def add_article_manual(
 ):
     published_date = datetime.utcnow()
 
-    image_url = extract_og_image(source_url)
+    image_url = proxy_image_url(extract_og_image(source_url))
     source_domain = urlparse(source_url).netloc or None
 
     article = NewsArticle(
