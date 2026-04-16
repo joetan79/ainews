@@ -105,10 +105,11 @@
                 onerror="handleImgError(this, '{{ featured_domain }}', '{{ featured_icon }}')"
               >
             {% elif featured_is_blocked %}
-              <div class="article-thumb article-thumb--source-card">
-                <div class="source-card-inner">
-                  <span class="source-card-domain">{{ featured_domain }}</span>
-                  <span class="source-card-icon">{{ featured_icon }}</span>
+              {% set card_variant = (featured.id % 6) + 1 %}
+              <div class="article-thumb source-card source-card--{{ card_variant }}">
+                <div class="sc-inner">
+                  <span class="sc-src">{{ featured_domain }}</span>
+                  <span class="sc-cat">{{ featured.category or 'AI & Tech' }}</span>
                 </div>
               </div>
             {% elif featured_domain %}
@@ -174,10 +175,11 @@
                   onerror="handleImgError(this, '{{ domain }}', '{{ icon }}')"
                 >
               {% elif is_blocked %}
-                <div class="article-thumb article-thumb--source-card">
-                  <div class="source-card-inner">
-                    <span class="source-card-domain">{{ domain }}</span>
-                    <span class="source-card-icon">{{ icon }}</span>
+                {% set card_variant = (article.id % 6) + 1 %}
+                <div class="article-thumb source-card source-card--{{ card_variant }}">
+                  <div class="sc-inner">
+                    <span class="sc-src">{{ domain }}</span>
+                    <span class="sc-cat">{{ article.category or 'AI & Tech' }}</span>
                   </div>
                 </div>
               {% elif domain %}
@@ -242,10 +244,11 @@
                   onerror="handleImgError(this, '{{ domain }}', '{{ icon }}')"
                 >
               {% elif is_blocked %}
-                <div class="article-thumb article-thumb--source-card">
-                  <div class="source-card-inner">
-                    <span class="source-card-domain">{{ domain }}</span>
-                    <span class="source-card-icon">{{ icon }}</span>
+                {% set card_variant = (article.id % 6) + 1 %}
+                <div class="article-thumb source-card source-card--{{ card_variant }}">
+                  <div class="sc-inner">
+                    <span class="sc-src">{{ domain }}</span>
+                    <span class="sc-cat">{{ article.category or 'AI & Tech' }}</span>
                   </div>
                 </div>
               {% elif domain %}

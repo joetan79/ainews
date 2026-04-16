@@ -24,15 +24,12 @@ body {
 .article-image-wrap {
   width: 100%;
   aspect-ratio: 16 / 9;
-  min-height: 160px;
   overflow: hidden;
   border-radius: 8px 8px 0 0;
   background: var(--image-bg, #1a1a2e);
   position: relative;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* Remove display:flex — let aspect-ratio control height */
 }
 
 .article-thumb {
@@ -61,12 +58,14 @@ body {
 
 .article-thumb--fallback,
 .article-thumb--icon {
-  position: absolute;
-  inset: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--card-bg, #0f0f1a) 0%, var(--accent-dim, #1a1a3e) 100%);
+  position: relative;
+  /* NOT absolute */
 }
 
 .favicon-img {
@@ -165,13 +164,15 @@ body {
 /* ── Source Card (blocked/paywalled domains) ─────────────────── */
 
 .article-thumb--source-card {
-  position: absolute;
-  inset: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 60%, #0d1f3c 100%);
   overflow: hidden;
+  position: relative;
+  /* NOT absolute — fill parent with width/height instead */
 }
 
 .article-thumb--source-card::before {
@@ -234,4 +235,245 @@ body {
 
 .article-hero-img--source-card .source-card-icon {
   font-size: 3.5rem;
+}
+
+/* ── 6 Rotating Branded Source Cards ─────────────────────── */
+
+.source-card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.sc-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-align: center;
+}
+
+.sc-src {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(6,182,212,0.75);
+}
+
+.sc-cat {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(248,250,252,0.35);
+}
+
+/* ── Card 1: Pulse Grid ──────────────────────────────────── */
+.source-card--1 {
+  background: #080B14;
+}
+.source-card--1::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(6,182,212,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6,182,212,0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+  z-index: 0;
+}
+.source-card--1::after {
+  content: '';
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(6,182,212,0.45);
+  animation: sc-pulse 2.2s ease-in-out infinite;
+  z-index: 1;
+}
+@keyframes sc-pulse {
+  0%,100% { transform: scale(1); opacity: 0.8; }
+  50%      { transform: scale(1.4); opacity: 0.15; }
+}
+
+/* ── Card 2: Scan Frame ──────────────────────────────────── */
+.source-card--2 {
+  background: linear-gradient(135deg, #05080F 0%, #0A1628 100%);
+}
+.source-card--2::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent 0%, rgba(6,182,212,0.6) 50%, transparent 100%);
+  animation: sc-scan 3s ease-in-out infinite;
+  top: 0;
+  z-index: 1;
+}
+@keyframes sc-scan {
+  0%   { top: 0%;   opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.source-card--2 .sc-inner::before,
+.source-card--2 .sc-inner::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: rgba(6,182,212,0.5);
+  border-style: solid;
+  border-width: 0;
+}
+.source-card--2 .sc-inner::before {
+  top: -20px; left: -20px;
+  border-top-width: 1.5px;
+  border-left-width: 1.5px;
+}
+.source-card--2 .sc-inner::after {
+  bottom: -20px; right: -20px;
+  border-bottom-width: 1.5px;
+  border-right-width: 1.5px;
+}
+
+/* ── Card 3: Topology ────────────────────────────────────── */
+.source-card--3 {
+  background: #070A0F;
+}
+.source-card--3::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 30% 40%, rgba(6,182,212,0.08) 0%, transparent 60%),
+                    radial-gradient(circle at 70% 60%, rgba(6,182,212,0.06) 0%, transparent 50%);
+  z-index: 0;
+}
+/* Topology lines via box-shadow trick on pseudo */
+.source-card--3::after {
+  content: '';
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: rgba(6,182,212,0.5);
+  box-shadow:
+    -40px -20px 0 rgba(6,182,212,0.25),
+     40px -18px 0 rgba(6,182,212,0.25),
+     38px  22px 0 rgba(6,182,212,0.25),
+    -38px  24px 0 rgba(6,182,212,0.25),
+      0px -36px 0 rgba(6,182,212,0.2);
+  z-index: 1;
+}
+
+/* ── Card 4: Waveform ────────────────────────────────────── */
+.source-card--4 {
+  background: #06080D;
+}
+.source-card--4::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(6,182,212,0.0)  0px,
+    rgba(6,182,212,0.0)  5px,
+    rgba(6,182,212,0.04) 5px,
+    rgba(6,182,212,0.04) 6px
+  );
+  z-index: 0;
+}
+/* Waveform via multi-stop gradient */
+.source-card--4::after {
+  content: '';
+  position: absolute;
+  bottom: 28%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 24px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(6,182,212,0) 0%,
+    rgba(6,182,212,0) 3%,
+    rgba(6,182,212,0.6) 4%,
+    rgba(6,182,212,0.6) 5%,
+    rgba(6,182,212,0) 6%
+  );
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 24'%3E%3Cpath d='M0,12 Q5,2 10,12 Q15,22 20,12 Q25,2 30,12 Q35,22 40,12 Q45,2 50,12 Q55,22 60,12 Q65,2 70,12 Q75,22 80,12 Q85,2 90,12 Q95,22 100,12' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 24'%3E%3Cpath d='M0,12 Q5,2 10,12 Q15,22 20,12 Q25,2 30,12 Q35,22 40,12 Q45,2 50,12 Q55,22 60,12 Q65,2 70,12 Q75,22 80,12 Q85,2 90,12 Q95,22 100,12' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
+  mask-size: contain;
+  -webkit-mask-size: contain;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  z-index: 1;
+}
+
+/* ── Card 5: Halftone ────────────────────────────────────── */
+.source-card--5 {
+  background: #070A0F;
+}
+.source-card--5::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(6,182,212,0.18) 1px, transparent 1px);
+  background-size: 14px 14px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  z-index: 0;
+}
+.source-card--5::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(6,182,212,0.06) 0%, transparent 65%);
+  z-index: 0;
+}
+
+/* ── Card 6: ABbot Circuit ───────────────────────────────── */
+.source-card--6 {
+  background: #050810;
+}
+.source-card--6::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    /* Horizontal traces */
+    linear-gradient(90deg, transparent 0%, transparent 15%, rgba(6,182,212,0.12) 15%, rgba(6,182,212,0.12) 16%, transparent 16%),
+    linear-gradient(90deg, transparent 0%, transparent 75%, rgba(6,182,212,0.10) 75%, rgba(6,182,212,0.10) 76%, transparent 76%),
+    /* Vertical traces */
+    linear-gradient(0deg, transparent 0%, transparent 25%, rgba(6,182,212,0.10) 25%, rgba(6,182,212,0.10) 26%, transparent 26%),
+    linear-gradient(0deg, transparent 0%, transparent 70%, rgba(6,182,212,0.08) 70%, rgba(6,182,212,0.08) 71%, transparent 71%);
+  z-index: 0;
+}
+.source-card--6::after {
+  content: 'ABbot';
+  position: absolute;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: rgba(6,182,212,0.06);
+  letter-spacing: -0.02em;
+  z-index: 0;
+  user-select: none;
+}
+.source-card--6 .sc-src {
+  color: rgba(6,182,212,0.85);
+}
+
+/* ── Responsive adjustments ──────────────────────────────── */
+@media (max-width: 640px) {
+  .sc-src { font-size: 0.55rem; }
+  .sc-cat { font-size: 0.55rem; }
 }
