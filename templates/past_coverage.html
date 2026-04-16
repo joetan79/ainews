@@ -43,6 +43,7 @@
         {% for article in articles %}
         {% set icon = {'AI Models':'🤖','Business':'💼','Policy':'⚖️','Research':'🔬','Robotics':'🦾','Hardware':'💡','Crypto':'₿'}.get(article.category, '🌐') %}
         {% set domain = article.source_domain or '' %}
+        {% set is_blocked = domain and domain | lower in ['bloomberg.com', 'reuters.com', 'wsj.com', 'ft.com', 'nytimes.com', 'economist.com', 'businessinsider.com'] %}
         <article class="news-card article-card" style="background:var(--bg-card); border:1px solid var(--border); border-radius:1rem; display:flex; flex-direction:column; overflow:hidden;">
           <div class="article-image-wrap">
             {% if article.image_url %}
@@ -54,6 +55,13 @@
                 loading="lazy"
                 onerror="handleImgError(this, '{{ domain }}', '{{ icon }}')"
               >
+            {% elif is_blocked %}
+              <div class="article-thumb article-thumb--source-card">
+                <div class="source-card-inner">
+                  <span class="source-card-domain">{{ domain }}</span>
+                  <span class="source-card-icon">{{ icon }}</span>
+                </div>
+              </div>
             {% elif domain %}
               <div class="article-thumb article-thumb--fallback">
                 <img

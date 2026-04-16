@@ -56,6 +56,7 @@
     <!-- Article Hero Image -->
     {% set icon = {'AI Models':'🤖','Business':'💼','Policy':'⚖️','Research':'🔬','Robotics':'🦾','Hardware':'💡','Crypto':'₿'}.get(article.category, '🌐') %}
     {% set domain = article.source_domain or '' %}
+    {% set is_blocked = domain and domain | lower in ['bloomberg.com', 'reuters.com', 'wsj.com', 'ft.com', 'nytimes.com', 'economist.com', 'businessinsider.com'] %}
     <div style="padding:0 2.5rem;">
       <div class="article-hero-wrap">
         {% if article.image_url %}
@@ -67,6 +68,13 @@
             loading="eager"
             onerror="handleImgError(this, '{{ domain }}', '{{ icon }}')"
           >
+        {% elif is_blocked %}
+          <div class="article-hero-img article-hero-img--source-card">
+            <div class="source-card-inner">
+              <span class="source-card-domain">{{ domain }}</span>
+              <span class="source-card-icon">{{ icon }}</span>
+            </div>
+          </div>
         {% elif domain %}
           <div class="article-hero-img article-hero-img--fallback">
             <img

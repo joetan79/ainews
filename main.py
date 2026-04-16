@@ -243,6 +243,7 @@ class ArticlePayload(BaseModel):
     category: Optional[str] = "AI & Tech"
     source_url: Optional[str] = None
     image_url: Optional[str] = None
+    image_blocked: Optional[bool] = False
     source_domain: Optional[str] = None
     published: Optional[str] = None
 
@@ -304,7 +305,7 @@ def publish_articles(
             summary=item.summary if item.summary and len(item.summary) >= 20 else item.title,
             category=item.category or "AI & Tech",
             source_url=item.source_url,
-            image_url=proxy_image_url(item.image_url),
+            image_url=None if item.image_blocked else proxy_image_url(item.image_url),
             source_domain=item.source_domain,
             published_date=pub_date,
             is_published=True,
