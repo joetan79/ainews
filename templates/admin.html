@@ -107,8 +107,31 @@
       </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <!-- ABbot Article Stats (unified 4-stat row) -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-6">
+      <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-3">ABbot Article Stats</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div>
+          <p class="text-xs text-gray-500 mb-1">Total Ever Published by ABbot</p>
+          <p class="text-2xl font-bold text-amber-400">{{ abbot_total_ever if abbot_total_ever is not none else '—' }}</p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 mb-1">Articles in Database</p>
+          <p class="text-2xl font-bold text-violet-400">{{ total_articles }}</p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 mb-1">Dedup Tracker (last 14 days)</p>
+          <p class="text-2xl font-bold text-sky-400">{{ dedup_count if dedup_count is not none else '—' }}</p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 mb-1">Articles Today</p>
+          <p class="text-2xl font-bold text-emerald-400">{{ today_articles }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subscriber Stats Cards -->
+    <div class="grid grid-cols-2 gap-4 mb-8">
       <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
         <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Total Subscribers</p>
         <p class="text-3xl font-bold text-emerald-400">{{ total_subs }}</p>
@@ -116,14 +139,6 @@
       <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
         <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Active Subscribers</p>
         <p class="text-3xl font-bold text-cyan-400">{{ active_subs }}</p>
-      </div>
-      <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
-        <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Total Articles</p>
-        <p class="text-3xl font-bold text-violet-400">{{ total_articles }}</p>
-      </div>
-      <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
-        <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Articles Today</p>
-        <p class="text-3xl font-bold text-sky-400">{{ today_articles }}</p>
       </div>
     </div>
 

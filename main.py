@@ -10,6 +10,7 @@ import csv
 import io
 
 import httpx
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from fastapi import FastAPI, Depends, Request, Header, HTTPException, Form
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, RedirectResponse
@@ -20,7 +21,7 @@ from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 
-from database import get_db, init_db, NewsArticle, Subscriber
+from database import get_db, init_db, SessionLocal, NewsArticle, Subscriber
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +58,29 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
+def clear_old_articles(days: int = 14):
+    """Delete NewsArticle records older than `days` days."""
+    db = SessionLocal()
+    try:
+        cutoff = datetime.utcnow() - timedelta(days=days)
+        deleted = db.query(NewsArticle).filter(NewsArticle.published_date < cutoff).delete()
+        db.commit()
+        logger.info(f"DB cleanup: deleted {deleted} articles older than {days} days")
+    except Exception as e:
+        db.rollback()
+        logger.error(f"DB cleanup error: {e}")
+    finally:
+        db.close()
+
+
 @app.on_event("startup")
 def on_startup():
     init_db()
+    clear_old_articles()  # immediate one-time cleanup on startup
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(clear_old_articles, "cron", hour=3, minute=30, id="daily_db_cleanup")
+    scheduler.start()
+    logger.info("DB cleanup scheduled daily at 03:30")
 
 
 # ---------- helpers ----------
@@ -343,6 +364,29 @@ def past_coverage(request: Request, db: Session = Depends(get_db)):
     )
 
 
+def _read_agentbot_stats():
+    """Read cumulative stats from agentbot's data files on the same VPS."""
+    import json
+    from pathlib import Path
+    base = Path("/home/claudeProj/agentbot/data")
+
+    total_ever = None
+    try:
+        stats = json.loads((base / "article_stats.json").read_text())
+        total_ever = stats.get("total_ever")
+    except Exception:
+        pass
+
+    dedup_count = None
+    try:
+        dedup = json.loads((base / "published_articles.json").read_text())
+        dedup_count = len(dedup)
+    except Exception:
+        pass
+
+    return total_ever, dedup_count
+
+
 @app.get("/admin", response_class=HTMLResponse)
 def admin_page(
     request: Request,
@@ -377,6 +421,8 @@ def admin_page(
         NewsArticle.published_date.desc()
     ).limit(50).all()
 
+    abbot_total_ever, dedup_count = _read_agentbot_stats()
+
     return templates.TemplateResponse(
         "admin.html",
         {
@@ -392,6 +438,8 @@ def admin_page(
             "total_subs": total_subs,
             "articles": articles,
             "msg": msg,
+            "abbot_total_ever": abbot_total_ever,
+            "dedup_count": dedup_count,
         },
     )
 
