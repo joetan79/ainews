@@ -87,6 +87,33 @@ def publish_to_website(articles: list) -> bool:
         return False
 
 
+async def receive_x_posts(posts, db):
+    """Store incoming X posts from ABbot, skip duplicates."""
+    from database import XPost
+    saved = 0
+    skipped = 0
+    for post in posts:
+        url = post.get("source_url") or post.get("url", "")
+        if not url:
+            continue
+        existing = db.query(XPost).filter(XPost.source_url == url).first()
+        if existing:
+            skipped += 1
+            continue
+        item = XPost(
+            title=post.get("title", "")[:500],
+            summary=post.get("summary", "")[:2000],
+            source_url=url,
+            source_name=post.get("source_name", "X"),
+            published_date=post.get("published", ""),
+            is_published=True,
+        )
+        db.add(item)
+        saved += 1
+    db.commit()
+    return {"saved": saved, "skipped": skipped}
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     test_articles = [

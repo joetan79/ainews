@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, Text
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, Text, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
@@ -26,6 +26,19 @@ class NewsArticle(Base):
     source_domain = Column(String, nullable=True)
     published_date = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
+    is_published = Column(Boolean, default=True)
+
+
+class XPost(Base):
+    __tablename__ = "x_posts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    summary = Column(Text, nullable=True)
+    source_url = Column(String, unique=True, nullable=False)
+    source_name = Column(String, nullable=True)
+    published_date = Column(String, nullable=True)
+    created_at = Column(DateTime, default=func.now())
     is_published = Column(Boolean, default=True)
 
 

@@ -477,3 +477,93 @@ body {
   .sc-src { font-size: 0.55rem; }
   .sc-cat { font-size: 0.55rem; }
 }
+
+/* ── X Updates Page ─────────────────────────────────────── */
+.x-updates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.x-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid #1d9bf0;
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  transition: box-shadow 0.2s;
+}
+
+.x-card:hover {
+  box-shadow: 0 4px 16px rgba(29, 155, 240, 0.12);
+}
+
+.x-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.x-source {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #1d9bf0;
+}
+
+.x-date {
+  font-size: 0.78rem;
+  color: var(--text-muted, #888);
+}
+
+.x-body {
+  font-size: 0.97rem;
+  line-height: 1.55;
+  margin: 0.3rem 0;
+  color: var(--text-color);
+}
+
+.x-summary {
+  font-size: 0.88rem;
+  color: var(--text-muted, #888);
+  margin: 0.3rem 0;
+}
+
+.x-link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.82rem;
+  color: #1d9bf0;
+  text-decoration: none;
+}
+
+.x-link:hover {
+  text-decoration: underline;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-muted, #888);
+  padding: 3rem;
+}
+
+.page-header {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1rem 0.5rem;
+}
+
+.page-header h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.page-header .subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted, #888);
+}

@@ -333,6 +333,33 @@ def publish_articles(
     return {"status": "ok", "saved": len(saved), "ids": saved, "skipped": skipped}
 
 
+@app.post("/api/publish-x")
+async def api_publish_x(request: Request, db: Session = Depends(get_db)):
+    api_key = request.headers.get("X-API-Key", "")
+    if api_key != os.getenv("WEBSITE_API_KEY", ""):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    body = await request.json()
+    posts = body.get("posts", [])
+    from abbot_publisher import receive_x_posts
+    result = await receive_x_posts(posts, db)
+    return {"status": "ok", **result}
+
+
+@app.get("/x-updates", response_class=HTMLResponse)
+async def x_updates_page(request: Request, db: Session = Depends(get_db)):
+    from database import XPost
+    posts = (
+        db.query(XPost)
+        .filter(XPost.is_published == True)
+        .order_by(XPost.id.desc())
+        .limit(50)
+        .all()
+    )
+    return templates.TemplateResponse(
+        "x_updates.html", {"request": request, "posts": posts}
+    )
+
+
 @app.get("/past-coverage", response_class=HTMLResponse)
 def past_coverage(request: Request, db: Session = Depends(get_db)):
     latest_ids = [
