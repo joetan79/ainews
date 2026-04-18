@@ -92,14 +92,17 @@ async def receive_x_posts(posts, db):
     from database import XPost
     saved = 0
     skipped = 0
+    seen_urls = set()  # dedup within this batch before hitting the DB unique constraint
     for post in posts:
         url = post.get("source_url") or post.get("url", "")
-        if not url:
+        if not url or url in seen_urls:
+            skipped += 1
             continue
         existing = db.query(XPost).filter(XPost.source_url == url).first()
         if existing:
             skipped += 1
             continue
+        seen_urls.add(url)
         item = XPost(
             title=post.get("title", "")[:500],
             summary=post.get("summary", "")[:2000],
