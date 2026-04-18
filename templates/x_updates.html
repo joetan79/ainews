@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}X Updates — AI & Tech Daily{% endblock %}
+{% block title %}AI Pulse & Updates — abai.cloud{% endblock %}
 
 {% block content %}
 
@@ -19,39 +19,30 @@
   <!-- Page heading -->
   <div style="margin-bottom:3rem;">
     <h1 style="font-family:'Playfair Display',serif; font-size:clamp(1.75rem,4vw,2.75rem); font-weight:900; color:var(--text-primary); line-height:1.15; margin-bottom:0.5rem;">
-      X Updates
+      AI Pulse & Updates
     </h1>
     <p style="font-family:'DM Sans',sans-serif; font-size:0.9375rem; color:var(--text-muted);">
-      Live tweets from key AI researchers and labs
+      Daily digest of the most significant AI announcements from leading labs and researchers worldwide — updated every day at 2pm (UTC+8).
     </p>
   </div>
 
   {% if posts %}
     <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr)); gap:1.25rem;">
       {% for post in posts %}
-      <article class="news-card article-card" style="background:var(--bg-card); border:1px solid var(--border); border-radius:1rem; display:flex; flex-direction:column; overflow:hidden;">
-        <div style="padding:1.375rem 1.5rem 1.5rem; display:flex; flex-direction:column; flex:1;">
-          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.875rem;">
-            <span class="category-badge">{{ (post.source_name or 'X').upper() }}</span>
-          </div>
-          <p style="font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:700; line-height:1.35; margin-bottom:0.625rem; color:var(--text-primary);">
-            {{ post.title }}
-          </p>
-          {% if post.summary and post.summary != post.title %}
-          <p class="card-summary" style="font-family:'DM Sans',sans-serif; font-size:0.875rem; line-height:1.65; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; flex:1;">
-            {{ post.summary[:300] }}
-          </p>
+      <article class="x-card">
+        <div class="x-card-meta">
+          <span class="x-source">{{ post.source_name or "AI" }}</span>
+          {% if post.published_date %}
+          <span class="x-date">{{ post.published_date[:10] }}</span>
           {% endif %}
-          <div style="margin-top:1rem; display:flex; align-items:center; justify-content:space-between;">
-            <span class="card-meta" style="font-family:'JetBrains Mono',monospace; font-size:0.7rem;">
-              {% if post.published_date %}{{ post.published_date[:10] }}{% endif %}
-            </span>
-            <a class="read-more" href="{{ post.source_url }}" target="_blank" rel="noopener"
-               style="font-family:'DM Sans',sans-serif; font-size:0.8125rem; transition:color 0.2s;">
-              View on X →
-            </a>
-          </div>
         </div>
+        <p class="x-body">{{ post.title }}</p>
+        {% if post.summary and post.summary != post.title %}
+        <p class="x-summary">{{ post.summary[:250] }}</p>
+        {% endif %}
+        <a class="x-link" href="{{ post.source_url }}" target="_blank" rel="noopener">
+          Read more →
+        </a>
       </article>
       {% endfor %}
     </div>
@@ -60,7 +51,7 @@
     <div style="text-align:center; padding:7rem 1rem;">
       <div style="font-family:'JetBrains Mono',monospace; font-size:2.5rem; color:var(--border); margin-bottom:1.25rem;">[ ]</div>
       <p style="font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:var(--text-faint); margin-bottom:0.5rem;">
-        No X updates yet — check back soon.
+        No AI Pulse updates yet. The next update arrives daily at 2pm UTC+8.
       </p>
     </div>
   {% endif %}

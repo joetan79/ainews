@@ -111,6 +111,24 @@ async def receive_x_posts(posts, db):
         db.add(item)
         saved += 1
     db.commit()
+
+    # Enforce 100 record cap — delete oldest beyond 100
+    try:
+        total = db.query(XPost).count()
+        if total > 100:
+            excess = total - 100
+            oldest_ids = (
+                db.query(XPost.id)
+                .order_by(XPost.id.asc())
+                .limit(excess)
+                .all()
+            )
+            ids_to_delete = [row.id for row in oldest_ids]
+            db.query(XPost).filter(XPost.id.in_(ids_to_delete)).delete(synchronize_session=False)
+            db.commit()
+    except Exception:
+        pass  # Non-critical, don't fail the whole publish if cleanup errors
+
     return {"saved": saved, "skipped": skipped}
 
 

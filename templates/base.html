@@ -21,110 +21,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <!-- Translation setup (must run before Google Translate script) -->
-  <script>
-    var LANGUAGES = [
-      {code:'en',    flag:'🇬🇧', name:'English (Original)'},
-      {code:'zh-TW', flag:'🇹🇼', name:'Traditional Chinese'},
-      {code:'zh-CN', flag:'🇨🇳', name:'Simplified Chinese'},
-      {code:'ms',    flag:'🇲🇾', name:'Bahasa Melayu'},
-      {code:'ar',    flag:'🇸🇦', name:'Arabic'},
-      {code:'ja',    flag:'🇯🇵', name:'Japanese'},
-      {code:'ko',    flag:'🇰🇷', name:'Korean'},
-      {code:'th',    flag:'🇹🇭', name:'Thai'},
-      {code:'fr',    flag:'🇫🇷', name:'French'},
-      {code:'de',    flag:'🇩🇪', name:'German'},
-      {code:'es',    flag:'🇪🇸', name:'Spanish'},
-    ];
-
-    document.addEventListener('DOMContentLoaded', function() {
-      var list = document.getElementById('lang-list');
-      if (!list) return;
-
-      var currentLang = getCookie('googtrans') || '/en/en';
-
-      LANGUAGES.forEach(function(lang) {
-        var isActive = (lang.code === 'en')
-          ? (currentLang === '/en/en' || currentLang.indexOf('/en/en') > -1 || currentLang === '')
-          : currentLang.indexOf('/' + lang.code) > -1;
-
-        var item = document.createElement('div');
-        item.style.cssText =
-          'padding:10px 16px; cursor:pointer; font-size:14px;' +
-          'display:flex; align-items:center; gap:10px;' +
-          'transition:background 0.15s;' +
-          (isActive ?
-            'background:#EFF6FF; color:#1D4ED8; font-weight:600;' :
-            'color:#0F172A;');
-        item.innerHTML = lang.flag + ' ' + lang.name +
-          (isActive ? ' ✓' : '');
-        item.onmouseover = function() {
-          if (!isActive) this.style.background = '#F8FAFC';
-        };
-        item.onmouseout = function() {
-          if (!isActive) this.style.background = 'transparent';
-        };
-        item.onclick = function() { translatePage(lang.code); };
-        list.appendChild(item);
-      });
-    });
-
-    function getCookie(name) {
-      var value = '; ' + document.cookie;
-      var parts = value.split('; ' + name + '=');
-      if (parts.length === 2) {
-        return parts.pop().split(';').shift();
-      }
-      return null;
-    }
-
-    function setCookie(name, value, days) {
-      var expires = '';
-      if (days) {
-        var date = new Date();
-        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-        expires = '; expires=' + date.toUTCString();
-      }
-      document.cookie = name + '=' + value + expires + '; path=/';
-      document.cookie = name + '=' + value + expires +
-        '; path=/; domain=.' + window.location.hostname;
-    }
-
-    function translatePage(lang) {
-      document.getElementById('translate-menu').style.display = 'none';
-
-      if (lang === 'en') {
-        // Clear the googtrans cookie to restore original English
-        setCookie('googtrans', '', -1);
-        // Also clear without domain prefix in case it was set that way
-        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
-        window.location.reload();
-        return;
-      }
-
-      setCookie('googtrans', '/en/' + lang, 365);
-      window.location.reload();
-    }
-
-    function toggleTranslateMenu(event) {
-      if (event) event.stopPropagation();
-      var menu = document.getElementById('translate-menu');
-      menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-    }
-
-    document.addEventListener('click', function(e) {
-      var wrapper = document.getElementById('translate-wrapper');
-      if (wrapper && !wrapper.contains(e.target)) {
-        var menu = document.getElementById('translate-menu');
-        if (menu) menu.style.display = 'none';
-      }
-    });
-  </script>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <link rel="stylesheet" href="/static/style.css?v=4" />
+  <link rel="stylesheet" href="/static/style.css?v=5" />
 
   <!-- Apply theme BEFORE render to prevent flash of wrong theme -->
   <script>
@@ -655,8 +556,8 @@
         <span class="navbar-logo-badge">AI &amp; Tech</span>
       </a>
 
-      <!-- Nav Links -->
-      <nav style="display:flex; align-items:center; flex:1; margin-left:12px;">
+      <!-- Nav Links + Language Switcher -->
+      <nav style="display:flex; align-items:center; flex:1; margin-left:12px; gap:2px;">
         <a href="/past-coverage"
            style="font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:var(--text-muted); text-decoration:none; padding:5px 10px; border-radius:6px; transition:color 0.2s, background 0.2s; white-space:nowrap;"
            onmouseover="this.style.color='var(--text-primary)';this.style.background='var(--bg-secondary)'"
@@ -667,8 +568,18 @@
            style="font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:var(--text-muted); text-decoration:none; padding:5px 10px; border-radius:6px; transition:color 0.2s, background 0.2s; white-space:nowrap;"
            onmouseover="this.style.color='var(--text-primary)';this.style.background='var(--bg-secondary)'"
            onmouseout="this.style.color='var(--text-muted)';this.style.background='transparent'">
-          X Updates
+          AI Pulse &amp; Updates
         </a>
+
+        <!-- Language Switcher -->
+        <div id="lang-switcher">
+          <span class="lang-label">Lang:</span>
+          <button onclick="setLang('en')"    class="lang-btn" id="lang-en">EN</button>
+          <button onclick="setLang('zh-TW')" class="lang-btn" id="lang-zhtw">繁中</button>
+          <button onclick="setLang('zh-CN')" class="lang-btn" id="lang-zhcn">简中</button>
+          <button onclick="setLang('ms')"    class="lang-btn" id="lang-ms">MS</button>
+          <button onclick="setLang('ja')"    class="lang-btn" id="lang-ja">JA</button>
+        </div>
       </nav>
 
       <!-- Actions -->
@@ -682,32 +593,6 @@
           title="Toggle dark/light mode">
           🌙
         </button>
-
-        <!-- Translate -->
-        <div style="position:relative;" id="translate-wrapper">
-          <button
-            id="translate-btn"
-            class="translate-btn"
-            onclick="toggleTranslateMenu(event)"
-            title="Translate page">
-            <span class="translate-icon">🌐</span>
-            <span class="translate-text">Translate</span>
-          </button>
-
-          <!-- Language Dropdown -->
-          <div id="translate-menu">
-            <div style="padding:8px 0;">
-              <div style="padding:6px 14px; font-size:10px; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:1px;">
-                Language
-              </div>
-              <div id="lang-list"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Hidden Google Translate element -->
-        <div id="google_translate_element"
-             style="display:none; position:absolute; top:-9999px; left:-9999px;"></div>
 
         <!-- Subscribe -->
         <a href="#subscribe" class="subscribe-nav-btn">Subscribe</a>
@@ -792,18 +677,69 @@
     }
   </script>
 
-  <!-- Google Translate widget (hidden, cookie-driven) -->
+  <!-- Language Switcher — manual googtrans cookie implementation -->
+  <div id="google_translate_element" style="display:none;"></div>
+
   <script>
+    // Exact domains seen in DevTools — target all variants
+    var TX_DOMAINS = [
+      'abai.cloud',
+      '.abai.cloud',
+      'news.abai.cloud',
+      '.news.abai.cloud',
+      window.location.hostname,
+      '.' + window.location.hostname,
+      ''
+    ];
+    var TX_PATHS = ['/', ''];
+
+    function clearGoogtrans() {
+      TX_DOMAINS.forEach(function(d) {
+        TX_PATHS.forEach(function(p) {
+          var base = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=' + (p || '/');
+          document.cookie = d ? base + '; domain=' + d + ';' : base + ';';
+        });
+      });
+    }
+
+    function setLang(lang) {
+      clearGoogtrans();
+      if (lang !== 'en') {
+        var value = '/en/' + lang;
+        TX_DOMAINS.forEach(function(d) {
+          TX_PATHS.forEach(function(p) {
+            var base = 'googtrans=' + value + '; path=' + (p || '/');
+            document.cookie = d ? base + '; domain=' + d + ';' : base + ';';
+          });
+        });
+      }
+      window.location.reload();
+    }
+
+    // Highlight the active language button on load
+    (function() {
+      var active = 'en';
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+        var c = cookies[i].trim();
+        if (c.indexOf('googtrans=') === 0) {
+          var val = c.substring('googtrans='.length);
+          var parts = val.split('/');
+          if (parts.length >= 3 && parts[2]) { active = parts[2]; break; }
+        }
+      }
+      var map = {'en':'lang-en','zh-TW':'lang-zhtw','zh-CN':'lang-zhcn','ms':'lang-ms','ja':'lang-ja'};
+      var btn = document.getElementById(map[active] || 'lang-en');
+      if (btn) { btn.style.fontWeight = 'bold'; btn.style.textDecoration = 'underline'; }
+    })();
+
     function googleTranslateElementInit() {
-      new google.translate.TranslateElement({
-        pageLanguage: 'en',
-        includedLanguages: 'zh-TW,zh-CN,ms,ar,ja,ko,th,fr,de,es',
-        autoDisplay: false,
-      }, 'google_translate_element');
+      new google.translate.TranslateElement(
+        { pageLanguage: 'en', autoDisplay: false },
+        'google_translate_element'
+      );
     }
   </script>
-  <script type="text/javascript"
-    src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
-  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>

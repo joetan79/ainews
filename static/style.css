@@ -567,3 +567,50 @@ body {
   font-size: 0.95rem;
   color: var(--text-muted, #888);
 }
+
+/* Google Translate — suppress injected UI chrome */
+.goog-te-banner-frame { display: none !important; }
+iframe.goog-te-banner-frame { display: none !important; }
+.skiptranslate { display: none !important; }
+#google_translate_element { display: none !important; }
+body { top: 0 !important; }
+
+/* ── Language Switcher ───────────────────────────── */
+#lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+}
+
+.lang-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-right: 2px;
+  white-space: nowrap;
+}
+
+.lang-btn {
+  font-size: 0.72rem;
+  padding: 2px 7px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.lang-btn:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* Hide Google Translate injected chrome */
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame,
+.skiptranslate { display: none !important; }
+#google_translate_element { display: none !important; }
+body { top: 0 !important; }
