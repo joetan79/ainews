@@ -132,7 +132,9 @@ def extract_og_image(url: str) -> Optional[str]:
 def group_articles_by_date(articles):
     grouped = {}
     for article in articles:
-        date_key = article.published_date.strftime("%B %d, %Y")
+        # Group by created_at (received date) so each job's batch appears under today's date
+        received = article.created_at or article.published_date
+        date_key = received.strftime("%B %d, %Y")
         grouped.setdefault(date_key, []).append(article)
     return grouped
 
@@ -144,8 +146,8 @@ def homepage(request: Request, db: Session = Depends(get_db)):
     articles = (
         db.query(NewsArticle)
         .filter(NewsArticle.is_published == True)
-        .order_by(NewsArticle.published_date.desc(), NewsArticle.id.desc())
-        .limit(20)
+        .order_by(NewsArticle.created_at.desc(), NewsArticle.id.desc())
+        .limit(30)
         .all()
     )
     grouped = group_articles_by_date(articles)
@@ -366,8 +368,8 @@ def past_coverage(request: Request, db: Session = Depends(get_db)):
         row.id for row in (
             db.query(NewsArticle.id)
             .filter(NewsArticle.is_published == True)
-            .order_by(NewsArticle.published_date.desc(), NewsArticle.id.desc())
-            .limit(20)
+            .order_by(NewsArticle.created_at.desc(), NewsArticle.id.desc())
+            .limit(30)
             .all()
         )
     ]
