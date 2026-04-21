@@ -472,6 +472,112 @@ body {
   color: rgba(6,182,212,0.85);
 }
 
+/* ── Light Mode: Branded Source Cards ────────────────────── */
+[data-theme="light"] .sc-src {
+  color: rgba(8,145,178,0.85);
+}
+[data-theme="light"] .sc-cat {
+  color: rgba(15,23,42,0.45);
+}
+
+/* Card 1: Pulse Grid — light */
+[data-theme="light"] .source-card--1 {
+  background: #F8FAFC;
+}
+[data-theme="light"] .source-card--1::before {
+  background-image:
+    linear-gradient(rgba(8,145,178,0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(8,145,178,0.15) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+[data-theme="light"] .source-card--1::after {
+  border-color: rgba(8,145,178,0.55);
+}
+
+/* Card 2: Scan Frame — light */
+[data-theme="light"] .source-card--2 {
+  background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+}
+[data-theme="light"] .source-card--2::before {
+  background: linear-gradient(90deg, transparent 0%, rgba(8,145,178,0.7) 50%, transparent 100%);
+}
+[data-theme="light"] .source-card--2 .sc-inner::before,
+[data-theme="light"] .source-card--2 .sc-inner::after {
+  border-color: rgba(8,145,178,0.6);
+}
+
+/* Card 3: Topology — light */
+[data-theme="light"] .source-card--3 {
+  background: #EFF6FF;
+}
+[data-theme="light"] .source-card--3::before {
+  background-image: radial-gradient(circle at 30% 40%, rgba(8,145,178,0.12) 0%, transparent 60%),
+                    radial-gradient(circle at 70% 60%, rgba(8,145,178,0.09) 0%, transparent 50%);
+}
+[data-theme="light"] .source-card--3::after {
+  background: rgba(8,145,178,0.6);
+  box-shadow:
+    -40px -20px 0 rgba(8,145,178,0.35),
+     40px -18px 0 rgba(8,145,178,0.35),
+     38px  22px 0 rgba(8,145,178,0.35),
+    -38px  24px 0 rgba(8,145,178,0.35),
+      0px -36px 0 rgba(8,145,178,0.3);
+}
+
+/* Card 4: Waveform — light */
+[data-theme="light"] .source-card--4 {
+  background: #F8FAFC;
+}
+[data-theme="light"] .source-card--4::before {
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(8,145,178,0.0)  0px,
+    rgba(8,145,178,0.0)  5px,
+    rgba(8,145,178,0.08) 5px,
+    rgba(8,145,178,0.08) 6px
+  );
+}
+[data-theme="light"] .source-card--4::after {
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(8,145,178,0)   0%,
+    rgba(8,145,178,0)   3%,
+    rgba(8,145,178,0.7) 4%,
+    rgba(8,145,178,0.7) 5%,
+    rgba(8,145,178,0)   6%
+  );
+}
+
+/* Card 5: Halftone — light */
+[data-theme="light"] .source-card--5 {
+  background: #F8FAFC;
+}
+[data-theme="light"] .source-card--5::before {
+  background-image: radial-gradient(circle, rgba(8,145,178,0.28) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+[data-theme="light"] .source-card--5::after {
+  background: radial-gradient(ellipse at center, rgba(8,145,178,0.1) 0%, transparent 65%);
+}
+
+/* Card 6: ABbot Circuit — light */
+[data-theme="light"] .source-card--6 {
+  background: #F8FAFC;
+}
+[data-theme="light"] .source-card--6::before {
+  background-image:
+    linear-gradient(90deg, transparent 0%, transparent 15%, rgba(8,145,178,0.22) 15%, rgba(8,145,178,0.22) 16%, transparent 16%),
+    linear-gradient(90deg, transparent 0%, transparent 75%, rgba(8,145,178,0.18) 75%, rgba(8,145,178,0.18) 76%, transparent 76%),
+    linear-gradient(0deg, transparent 0%, transparent 25%, rgba(8,145,178,0.18) 25%, rgba(8,145,178,0.18) 26%, transparent 26%),
+    linear-gradient(0deg, transparent 0%, transparent 70%, rgba(8,145,178,0.14) 70%, rgba(8,145,178,0.14) 71%, transparent 71%);
+}
+[data-theme="light"] .source-card--6::after {
+  color: rgba(8,145,178,0.12);
+}
+[data-theme="light"] .source-card--6 .sc-src {
+  color: rgba(8,145,178,0.9);
+}
+
 /* ── Responsive adjustments ──────────────────────────────── */
 @media (max-width: 640px) {
   .sc-src { font-size: 0.55rem; }
