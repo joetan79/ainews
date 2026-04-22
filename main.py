@@ -423,6 +423,8 @@ def admin_page(
     db: Session = Depends(get_db),
     username: str = Depends(verify_admin),
     msg: Optional[str] = None,
+    xpost_added: int = 0,
+    xpost_deleted: int = 0,
     sub_page: int = 1,
 ):
     import math
@@ -451,6 +453,9 @@ def admin_page(
         NewsArticle.published_date.desc()
     ).limit(50).all()
 
+    from database import XPost
+    xposts = db.query(XPost).order_by(XPost.id.desc()).limit(50).all()
+
     abbot_total_ever, dedup_count = _read_agentbot_stats()
 
     return templates.TemplateResponse(
@@ -467,7 +472,10 @@ def admin_page(
             "inactive_subs": inactive_subs,
             "total_subs": total_subs,
             "articles": articles,
+            "xposts": xposts,
             "msg": msg,
+            "xpost_added": xpost_added,
+            "xpost_deleted": xpost_deleted,
             "abbot_total_ever": abbot_total_ever,
             "dedup_count": dedup_count,
         },
@@ -506,6 +514,66 @@ async def add_article_manual(
         url=f"/admin?msg=Article+added%3A+{title[:60].replace(' ', '+')}",
         status_code=303,
     )
+
+
+@app.post("/admin/add-xpost")
+async def add_xpost_manual(
+    request: Request,
+    db: Session = Depends(get_db),
+    username: str = Depends(verify_admin),
+    title: str = Form(...),
+    summary: str = Form(...),
+    source_name: str = Form(...),
+    source_url: str = Form(...),
+):
+    from database import XPost
+
+    published_date = datetime.utcnow().isoformat()
+
+    # Skip if source_url already exists (unique constraint)
+    existing = db.query(XPost).filter(XPost.source_url == source_url).first()
+    if not existing:
+        post = XPost(
+            title=title,
+            summary=summary,
+            source_name=source_name,
+            source_url=source_url,
+            published_date=published_date,
+            is_published=True,
+        )
+        db.add(post)
+        db.commit()
+
+        # Enforce 100-record cap: delete oldest beyond 100
+        total = db.query(XPost).count()
+        if total > 100:
+            oldest_ids = [
+                row.id for row in (
+                    db.query(XPost.id)
+                    .order_by(XPost.id.asc())
+                    .limit(total - 100)
+                    .all()
+                )
+            ]
+            if oldest_ids:
+                db.query(XPost).filter(XPost.id.in_(oldest_ids)).delete(synchronize_session=False)
+                db.commit()
+
+    return RedirectResponse(url="/admin?xpost_added=1", status_code=303)
+
+
+@app.post("/admin/delete-xpost/{xpost_id}")
+async def delete_xpost(
+        xpost_id: int,
+        db: Session = Depends(get_db),
+        username: str = Depends(verify_admin)):
+    from database import XPost
+    post = db.query(XPost).filter(XPost.id == xpost_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    db.delete(post)
+    db.commit()
+    return RedirectResponse(url="/admin?xpost_deleted=1", status_code=303)
 
 
 @app.post("/admin/subscriber/{subscriber_id}/suspend")

@@ -31,6 +31,18 @@
     </div>
     {% endif %}
 
+    {% if xpost_added %}
+    <div class="mb-6 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-sm font-medium px-4 py-3 rounded-xl">
+      ✅ AI Pulse post added successfully.
+    </div>
+    {% endif %}
+
+    {% if xpost_deleted %}
+    <div class="mb-6 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-sm font-medium px-4 py-3 rounded-xl">
+      ✅ AI Pulse post deleted.
+    </div>
+    {% endif %}
+
     <!-- Manually Add Article (collapsible) -->
     <div class="bg-gray-900 border border-gray-800 rounded-xl mb-8 overflow-hidden">
       <button type="button"
@@ -67,6 +79,40 @@
               <button type="submit"
                       class="bg-cyan-500 hover:bg-cyan-400 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors cursor-pointer border-none">
                 Add Article
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Add AI Pulse Post (collapsible) -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl mb-8 overflow-hidden">
+      <button type="button"
+              onclick="toggleSection('add-xpost-body', 'add-xpost-arrow')"
+              class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-800/40 transition-colors"
+              style="background:transparent; border:none; cursor:pointer;">
+        <div>
+          <h2 class="text-base font-semibold text-white">Manual Add AI Pulse Post</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Manually publish an AI Pulse &amp; Updates entry to the x-updates feed</p>
+        </div>
+        <span id="add-xpost-arrow" style="color:#9CA3AF; font-size:12px; transition:transform 0.3s ease; display:inline-block; flex-shrink:0; margin-left:12px;">▶</span>
+      </button>
+      <div id="add-xpost-body" style="max-height:0; overflow:hidden; transition:max-height 0.35s ease;">
+        <div class="px-6 pb-6">
+          <form method="POST" action="/admin/add-xpost" class="flex flex-col gap-3 max-w-2xl">
+            <input type="text" name="title" placeholder="Title" required
+                   class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600" />
+            <textarea name="summary" rows="3" placeholder="Summary" required
+                      class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600 resize-y"></textarea>
+            <input type="text" name="source_name" placeholder="Source Name (e.g. OpenAI, Anthropic)" required
+                   class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600" />
+            <input type="url" name="source_url" placeholder="Source URL" required
+                   class="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-500 placeholder-gray-600" />
+            <div>
+              <button type="submit"
+                      class="bg-cyan-500 hover:bg-cyan-400 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors cursor-pointer border-none">
+                Add AI Pulse Post
               </button>
             </div>
           </form>
@@ -245,6 +291,59 @@
       </div>
     </div>
 
+    <!-- AI Pulse Posts Management -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden mb-8">
+      <div class="px-6 py-4 border-b border-gray-800">
+        <h2 class="text-base font-semibold text-white">AI Pulse Posts</h2>
+        <p class="text-xs text-gray-500 mt-0.5">Latest 50 AI Pulse &amp; Updates posts</p>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wide">
+              <th class="px-4 py-3 text-left font-semibold">ID</th>
+              <th class="px-4 py-3 text-left font-semibold">Title</th>
+              <th class="px-4 py-3 text-left font-semibold">Source</th>
+              <th class="px-4 py-3 text-left font-semibold">Date</th>
+              <th class="px-4 py-3 text-left font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in xposts %}
+            <tr class="border-t border-gray-800/60 hover:bg-gray-800/30 transition-colors">
+              <td class="px-4 py-3 text-gray-500 font-mono text-xs">{{ p.id }}</td>
+              <td class="px-4 py-3 text-gray-200 max-w-xs">
+                <a href="{{ p.source_url }}" target="_blank"
+                   class="hover:text-cyan-400 transition-colors"
+                   style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                  {{ p.title[:60] }}{% if p.title|length > 60 %}…{% endif %}
+                </a>
+              </td>
+              <td class="px-4 py-3 text-gray-400 whitespace-nowrap text-xs">{{ p.source_name or '—' }}</td>
+              <td class="px-4 py-3 text-gray-400 whitespace-nowrap text-xs">
+                {{ p.published_date[:10] if p.published_date else '—' }}
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap">
+                <button onclick="deleteXPost({{ p.id }})"
+                    style="padding:4px 10px; border-radius:6px;
+                           border:none; cursor:pointer;
+                           font-size:12px; background:#FEE2E2;
+                           color:#991B1B;">
+                  Delete
+                </button>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5" class="px-6 py-12 text-center text-gray-600">No AI Pulse posts yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- Articles Management -->
     <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-800">
@@ -408,6 +507,15 @@
       if (data.status === 'success') {
         document.getElementById(`article-row-${id}`).remove();
       }
+    }
+
+    function deleteXPost(id) {
+      if (!confirm('Delete this AI Pulse post?')) return;
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/admin/delete-xpost/${id}`;
+      document.body.appendChild(form);
+      form.submit();
     }
   </script>
 </body>
