@@ -43,6 +43,18 @@
     </div>
     {% endif %}
 
+    {% if article_added %}
+    <div class="mb-6 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-sm font-medium px-4 py-3 rounded-xl">
+      ✅ Article added.
+    </div>
+    {% endif %}
+
+    {% if article_deleted %}
+    <div class="mb-6 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-sm font-medium px-4 py-3 rounded-xl">
+      ✅ Article deleted.
+    </div>
+    {% endif %}
+
     <!-- Manually Add Article (collapsible) -->
     <div class="bg-gray-900 border border-gray-800 rounded-xl mb-8 overflow-hidden">
       <button type="button"
@@ -291,133 +303,157 @@
       </div>
     </div>
 
-    <!-- AI Pulse Posts Management -->
-    <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden mb-8">
-      <div class="px-6 py-4 border-b border-gray-800">
-        <h2 class="text-base font-semibold text-white">AI Pulse Posts</h2>
-        <p class="text-xs text-gray-500 mt-0.5">Latest 50 AI Pulse &amp; Updates posts</p>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wide">
-              <th class="px-4 py-3 text-left font-semibold">ID</th>
-              <th class="px-4 py-3 text-left font-semibold">Title</th>
-              <th class="px-4 py-3 text-left font-semibold">Source</th>
-              <th class="px-4 py-3 text-left font-semibold">Date</th>
-              <th class="px-4 py-3 text-left font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for p in xposts %}
-            <tr class="border-t border-gray-800/60 hover:bg-gray-800/30 transition-colors">
-              <td class="px-4 py-3 text-gray-500 font-mono text-xs">{{ p.id }}</td>
-              <td class="px-4 py-3 text-gray-200 max-w-xs">
-                <a href="{{ p.source_url }}" target="_blank"
-                   class="hover:text-cyan-400 transition-colors"
-                   style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
-                  {{ p.title[:60] }}{% if p.title|length > 60 %}…{% endif %}
-                </a>
-              </td>
-              <td class="px-4 py-3 text-gray-400 whitespace-nowrap text-xs">{{ p.source_name or '—' }}</td>
-              <td class="px-4 py-3 text-gray-400 whitespace-nowrap text-xs">
-                {{ p.published_date[:10] if p.published_date else '—' }}
-              </td>
-              <td class="px-4 py-3 whitespace-nowrap">
-                <button onclick="deleteXPost({{ p.id }})"
-                    style="padding:4px 10px; border-radius:6px;
-                           border:none; cursor:pointer;
-                           font-size:12px; background:#FEE2E2;
-                           color:#991B1B;">
-                  Delete
-                </button>
-              </td>
-            </tr>
-            {% else %}
-            <tr>
-              <td colspan="5" class="px-6 py-12 text-center text-gray-600">No AI Pulse posts yet.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+    <!-- AI Pulse Management (collapsible) -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl mb-8 overflow-hidden">
+      <button type="button"
+              onclick="toggleSection('xpulse-management-body', 'xpulse-management-arrow')"
+              class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-800/40 transition-colors"
+              style="background:transparent; border:none; cursor:pointer;">
+        <div>
+          <h2 class="text-base font-semibold text-white">⚡ AI Pulse Management ({{ xpost_total }} total)</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Page {{ xpost_page }} of {{ xpost_total_pages }} &middot; 50 per page</p>
+        </div>
+        <span id="xpulse-management-arrow" style="color:#9CA3AF; font-size:12px; transition:transform 0.3s ease; display:inline-block; flex-shrink:0; margin-left:12px;">▶</span>
+      </button>
+      <div id="xpulse-management-body" style="max-height:0; overflow:hidden; transition:max-height 0.5s ease;">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wide">
+                <th class="px-4 py-3 text-left font-semibold">Title</th>
+                <th class="px-4 py-3 text-left font-semibold">Source</th>
+                <th class="px-4 py-3 text-left font-semibold">Published</th>
+                <th class="px-4 py-3 text-left font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in xposts %}
+              <tr class="border-t border-gray-800/60 hover:bg-gray-800/30 transition-colors">
+                <td class="px-4 py-3 text-gray-200 max-w-xs">
+                  <a href="{{ p.source_url }}" target="_blank" class="hover:text-cyan-400 transition-colors"
+                     style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                    {{ p.title[:60] }}{% if p.title|length > 60 %}…{% endif %}
+                  </a>
+                </td>
+                <td class="px-4 py-3 text-gray-400 whitespace-nowrap text-xs">{{ p.source_name or '—' }}</td>
+                <td class="px-4 py-3 text-gray-400 whitespace-nowrap text-xs">{{ p.published_date[:10] if p.published_date else '—' }}</td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <button onclick="deleteXPost({{ p.id }}, {{ xpost_page }}, {{ art_page }})"
+                      style="padding:4px 10px; border-radius:6px; border:none; cursor:pointer; font-size:12px; background:#FEE2E2; color:#991B1B;">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="4" class="px-6 py-12 text-center text-gray-600">No AI Pulse posts yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-800 flex flex-wrap items-center justify-between gap-3">
+          <span class="text-sm text-gray-400">Page {{ xpost_page }} of {{ xpost_total_pages }} &middot; {{ xpost_total }} total</span>
+          <div class="flex items-center gap-2">
+            {% if xpost_page > 1 %}
+            <a href="/admin?art_page={{ art_page }}&xpost_page={{ xpost_page - 1 }}"
+               class="text-sm text-gray-300 bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-700 transition-colors">
+              ← Previous
+            </a>
+            {% endif %}
+            {% if xpost_page < xpost_total_pages %}
+            <a href="/admin?art_page={{ art_page }}&xpost_page={{ xpost_page + 1 }}"
+               class="text-sm text-gray-300 bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-700 transition-colors">
+              Next →
+            </a>
+            {% endif %}
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Articles Management -->
-    <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-800">
-        <h2 class="text-base font-semibold text-white">Articles Management</h2>
-        <p class="text-xs text-gray-500 mt-0.5">Latest 50 articles &middot; toggle visibility or delete</p>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wide">
-              <th class="px-4 py-3 text-left font-semibold">ID</th>
-              <th class="px-4 py-3 text-left font-semibold">Title</th>
-              <th class="px-4 py-3 text-left font-semibold">Category</th>
-              <th class="px-4 py-3 text-left font-semibold">Date</th>
-              <th class="px-4 py-3 text-left font-semibold">Status</th>
-              <th class="px-4 py-3 text-left font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for a in articles %}
-            <tr id="article-row-{{ a.id }}" class="border-t border-gray-800/60 hover:bg-gray-800/30 transition-colors">
-              <td class="px-4 py-3 text-gray-500 font-mono text-xs">{{ a.id }}</td>
-              <td class="px-4 py-3 text-gray-200 max-w-xs">
-                <a href="/article/{{ a.id }}" target="_blank"
-                   class="hover:text-cyan-400 transition-colors line-clamp-2"
-                   style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
-                  {{ a.title }}
-                </a>
-              </td>
-              <td class="px-4 py-3 text-gray-400 whitespace-nowrap text-xs">{{ a.category or '—' }}</td>
-              <td class="px-4 py-3 text-gray-400 whitespace-nowrap text-xs">
-                {% if a.published_date %}
-                  {{ a.published_date.strftime("%Y-%m-%d") }}
-                {% else %}
-                  —
-                {% endif %}
-              </td>
-              <td class="px-4 py-3">
-                {% if a.is_published %}
-                  <span class="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 px-2.5 py-0.5 rounded-full">
-                    Published
-                  </span>
-                {% else %}
-                  <span class="inline-flex items-center gap-1 text-xs font-semibold bg-gray-500/15 text-gray-400 border border-gray-500/25 px-2.5 py-0.5 rounded-full">
-                    Hidden
-                  </span>
-                {% endif %}
-              </td>
-              <td class="px-4 py-3 whitespace-nowrap">
-                <button onclick="toggleArticle({{ a.id }})"
-                    style="padding:4px 10px; border-radius:6px;
-                           border:none; cursor:pointer;
-                           font-size:12px; margin-right:4px;
-                           background: {{ '#F1F5F9' if a.is_published else '#D1FAE5' }};
-                           color: {{ '#334155' if a.is_published else '#065F46' }};">
-                  {{ 'Hide' if a.is_published else 'Show' }}
-                </button>
-                <button onclick="deleteArticle({{ a.id }}, '{{ a.title | replace("'", "\\'") }}')"
-                    style="padding:4px 10px; border-radius:6px;
-                           border:none; cursor:pointer;
-                           font-size:12px; background:#FEE2E2;
-                           color:#991B1B;">
-                  Delete
-                </button>
-              </td>
-            </tr>
-            {% else %}
-            <tr>
-              <td colspan="6" class="px-6 py-12 text-center text-gray-600">No articles yet.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+    <!-- Articles Management (collapsible) -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl mb-8 overflow-hidden">
+      <button type="button"
+              onclick="toggleSection('articles-management-body', 'articles-management-arrow')"
+              class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-800/40 transition-colors"
+              style="background:transparent; border:none; cursor:pointer;">
+        <div>
+          <h2 class="text-base font-semibold text-white">📰 Articles Management ({{ total_articles }} total)</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Page {{ art_page }} of {{ art_total_pages }} &middot; 50 per page &middot; toggle visibility or delete</p>
+        </div>
+        <span id="articles-management-arrow" style="color:#9CA3AF; font-size:12px; transition:transform 0.3s ease; display:inline-block; flex-shrink:0; margin-left:12px;">▶</span>
+      </button>
+      <div id="articles-management-body" style="max-height:0; overflow:hidden; transition:max-height 0.5s ease;">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wide">
+                <th class="px-4 py-3 text-left font-semibold">Title</th>
+                <th class="px-4 py-3 text-left font-semibold">Category</th>
+                <th class="px-4 py-3 text-left font-semibold">Published</th>
+                <th class="px-4 py-3 text-left font-semibold">Status</th>
+                <th class="px-4 py-3 text-left font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for a in articles %}
+              <tr id="article-row-{{ a.id }}" class="border-t border-gray-800/60 hover:bg-gray-800/30 transition-colors">
+                <td class="px-4 py-3 text-gray-200 max-w-xs">
+                  <a href="/article/{{ a.id }}" target="_blank" class="hover:text-cyan-400 transition-colors"
+                     style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+                    {{ a.title[:60] }}{% if a.title|length > 60 %}…{% endif %}
+                  </a>
+                </td>
+                <td class="px-4 py-3 text-gray-400 whitespace-nowrap text-xs">{{ a.category or '—' }}</td>
+                <td class="px-4 py-3 text-gray-400 whitespace-nowrap text-xs">
+                  {% if a.published_date %}{{ a.published_date.strftime("%Y-%m-%d") }}{% else %}—{% endif %}
+                </td>
+                <td class="px-4 py-3">
+                  {% if a.is_published %}
+                    <span class="inline-flex items-center text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 px-2.5 py-0.5 rounded-full">Published</span>
+                  {% else %}
+                    <span class="inline-flex items-center text-xs font-semibold bg-gray-500/15 text-gray-400 border border-gray-500/25 px-2.5 py-0.5 rounded-full">Hidden</span>
+                  {% endif %}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <button onclick="toggleArticle({{ a.id }})"
+                      style="padding:4px 10px; border-radius:6px; border:none; cursor:pointer; font-size:12px; margin-right:4px;
+                             background: {{ '#F1F5F9' if a.is_published else '#D1FAE5' }};
+                             color: {{ '#334155' if a.is_published else '#065F46' }};">
+                    {{ 'Hide' if a.is_published else 'Show' }}
+                  </button>
+                  <button onclick="deleteArticle({{ a.id }}, {{ art_page }}, {{ xpost_page }})"
+                      style="padding:4px 10px; border-radius:6px; border:none; cursor:pointer; font-size:12px; background:#FEE2E2; color:#991B1B;">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-gray-600">No articles yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-800 flex flex-wrap items-center justify-between gap-3">
+          <span class="text-sm text-gray-400">Page {{ art_page }} of {{ art_total_pages }} &middot; {{ total_articles }} total</span>
+          <div class="flex items-center gap-2">
+            {% if art_page > 1 %}
+            <a href="/admin?art_page={{ art_page - 1 }}&xpost_page={{ xpost_page }}"
+               class="text-sm text-gray-300 bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-700 transition-colors">
+              ← Previous
+            </a>
+            {% endif %}
+            {% if art_page < art_total_pages %}
+            <a href="/admin?art_page={{ art_page + 1 }}&xpost_page={{ xpost_page }}"
+               class="text-sm text-gray-300 bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-700 transition-colors">
+              Next →
+            </a>
+            {% endif %}
+          </div>
+        </div>
       </div>
     </div>
 
@@ -500,23 +536,42 @@
       }
     }
 
-    async function deleteArticle(id, title) {
-      if (!confirm(`Delete article: "${title}"?\nThis cannot be undone.`)) return;
+    async function deleteArticle(id, artPage, xpostPage) {
+      if (!confirm('Delete this article? This cannot be undone.')) return;
       const r = await fetch(`/admin/article/${id}`, {method: 'DELETE'});
       const data = await r.json();
       if (data.status === 'success') {
-        document.getElementById(`article-row-${id}`).remove();
+        window.location.href = `/admin?article_deleted=1&art_page=${artPage}&xpost_page=${xpostPage}`;
       }
     }
 
-    function deleteXPost(id) {
+    async function deleteXPost(id, xpostPage, artPage) {
       if (!confirm('Delete this AI Pulse post?')) return;
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = `/admin/delete-xpost/${id}`;
-      document.body.appendChild(form);
-      form.submit();
+      const r = await fetch(`/admin/delete-xpost/${id}`, {method: 'POST'});
+      if (r.ok) {
+        window.location.href = `/admin?xpost_deleted=1&art_page=${artPage}&xpost_page=${xpostPage}`;
+      }
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const params = new URLSearchParams(window.location.search);
+      var artPage = parseInt(params.get("art_page") || "1");
+      var xpostPage = parseInt(params.get("xpost_page") || "1");
+      var openArt = artPage > 1 || params.get("article_deleted") === "1" || params.get("article_added") === "1";
+      var openXpost = xpostPage > 1 || params.get("xpost_deleted") === "1" || params.get("xpost_added") === "1";
+      if (openArt) {
+        var c = document.getElementById("articles-management-body");
+        var a = document.getElementById("articles-management-arrow");
+        if (c) c.style.maxHeight = "10000px";
+        if (a) a.style.transform = "rotate(90deg)";
+      }
+      if (openXpost) {
+        var c2 = document.getElementById("xpulse-management-body");
+        var a2 = document.getElementById("xpulse-management-arrow");
+        if (c2) c2.style.maxHeight = "10000px";
+        if (a2) a2.style.transform = "rotate(90deg)";
+      }
+    });
   </script>
 </body>
 </html>

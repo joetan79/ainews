@@ -425,9 +425,15 @@ def admin_page(
     msg: Optional[str] = None,
     xpost_added: int = 0,
     xpost_deleted: int = 0,
+    article_added: int = 0,
+    article_deleted: int = 0,
     sub_page: int = 1,
+    art_page: int = 1,
+    xpost_page: int = 1,
 ):
     import math
+    PAGE_SIZE = 50
+
     total_subs = db.query(Subscriber).count()
     sub_total_pages = max(1, math.ceil(total_subs / 10))
     sub_page = max(1, min(sub_page, sub_total_pages))
@@ -449,12 +455,27 @@ def admin_page(
         NewsArticle.published_date >= today_start
     ).count()
 
-    articles = db.query(NewsArticle).order_by(
-        NewsArticle.published_date.desc()
-    ).limit(50).all()
+    art_total_pages = max(1, math.ceil(total_articles / PAGE_SIZE))
+    art_page = max(1, min(art_page, art_total_pages))
+    articles = (
+        db.query(NewsArticle)
+        .order_by(NewsArticle.published_date.desc(), NewsArticle.id.desc())
+        .offset((art_page - 1) * PAGE_SIZE)
+        .limit(PAGE_SIZE)
+        .all()
+    )
 
     from database import XPost
-    xposts = db.query(XPost).order_by(XPost.id.desc()).limit(50).all()
+    xpost_total = db.query(XPost).count()
+    xpost_total_pages = max(1, math.ceil(xpost_total / PAGE_SIZE))
+    xpost_page = max(1, min(xpost_page, xpost_total_pages))
+    xposts = (
+        db.query(XPost)
+        .order_by(XPost.published_date.desc(), XPost.id.desc())
+        .offset((xpost_page - 1) * PAGE_SIZE)
+        .limit(PAGE_SIZE)
+        .all()
+    )
 
     abbot_total_ever, dedup_count = _read_agentbot_stats()
 
@@ -472,10 +493,17 @@ def admin_page(
             "inactive_subs": inactive_subs,
             "total_subs": total_subs,
             "articles": articles,
+            "art_page": art_page,
+            "art_total_pages": art_total_pages,
             "xposts": xposts,
+            "xpost_page": xpost_page,
+            "xpost_total": xpost_total,
+            "xpost_total_pages": xpost_total_pages,
             "msg": msg,
             "xpost_added": xpost_added,
             "xpost_deleted": xpost_deleted,
+            "article_added": article_added,
+            "article_deleted": article_deleted,
             "abbot_total_ever": abbot_total_ever,
             "dedup_count": dedup_count,
         },
