@@ -78,13 +78,10 @@
           </div>
         {% elif domain %}
           <div class="article-hero-img article-hero-img--fallback">
-            <img
-              class="favicon-img favicon-img--hero"
-              src="https://www.google.com/s2/favicons?domain={{ domain }}&sz=128"
-              alt="{{ domain }}"
-              referrerpolicy="no-referrer"
-              onerror="handleFaviconError(this, '{{ icon }}')"
-            >
+            <div class="sc-inner">
+              <span class="sc-src">{{ domain }}</span>
+              <span class="sc-cat">{{ article.category or 'AI & Tech' }}</span>
+            </div>
           </div>
         {% else %}
           <div class="article-hero-img article-hero-img--icon">

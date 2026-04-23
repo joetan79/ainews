@@ -25,7 +25,7 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <link rel="stylesheet" href="/static/style.css?v=9" />
+  <link rel="stylesheet" href="/static/style.css?v=10" />
 
   <!-- Apply theme BEFORE render to prevent flash of wrong theme -->
   <script>
@@ -668,11 +668,16 @@
   <!-- 3-tier image fallback chain -->
   <script>
     function handleImgError(img, domain, icon) {
-      if (domain && !img.dataset.faviconTried) {
-        img.dataset.faviconTried = '1';
-        img.classList.add('article-thumb--favicon');
-        img.src = 'https://www.google.com/s2/favicons?domain=' + domain + '&sz=64';
-        img.onerror = function() { handleFaviconError(img, icon); };
+      if (domain) {
+        var wrap = img.closest('.article-image-wrap, .article-hero-wrap');
+        if (!wrap) { showIconFallback(img, icon); return; }
+        var isHero = wrap.classList.contains('article-hero-wrap');
+        var div = document.createElement('div');
+        div.className = isHero
+          ? 'article-hero-img article-hero-img--fallback'
+          : 'article-thumb article-thumb--fallback';
+        div.innerHTML = '<div class="sc-inner"><span class="sc-src">' + domain + '</span></div>';
+        img.parentNode.replaceChild(div, img);
         return;
       }
       showIconFallback(img, icon);

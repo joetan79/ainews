@@ -150,7 +150,6 @@ body {
   opacity: 0;
 }
 
-.article-hero-img--fallback,
 .article-hero-img--icon {
   display: flex;
   align-items: center;
@@ -158,6 +157,41 @@ body {
   background: linear-gradient(135deg, var(--card-bg, #0f0f1a) 0%, var(--accent-dim, #1a1a3e) 100%);
   opacity: 1;
   animation: none;
+}
+
+.article-hero-img--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #060B16 0%, #0A1525 60%, #060E1C 100%);
+  opacity: 1;
+  animation: none;
+  position: relative;
+  overflow: hidden;
+}
+.article-hero-img--fallback::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(6,182,212,0.07) 1px, transparent 1px);
+  background-size: 18px 18px;
+  z-index: 0;
+  animation: sc-fallback-shimmer 5s linear infinite;
+}
+.article-hero-img--fallback::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(6,182,212,0.08) 0%, transparent 60%);
+  z-index: 0;
+  animation: sc-fallback-glow 3.5s ease-in-out infinite;
+}
+.article-hero-img--fallback .sc-src {
+  font-size: 0.9rem;
+  letter-spacing: 0.18em;
+}
+.article-hero-img--fallback .sc-cat {
+  font-size: 0.75rem;
 }
 
 .favicon-img--hero {
@@ -193,18 +227,24 @@ body {
 }
 
 [data-theme="light"] .article-thumb--icon,
-[data-theme="light"] .article-hero-img--fallback,
 [data-theme="light"] .article-hero-img--icon {
   background: linear-gradient(135deg, #e8e8f0 0%, #d8d8ee 100%);
 }
-[data-theme="light"] .article-thumb--fallback {
+[data-theme="light"] .article-thumb--fallback,
+[data-theme="light"] .article-hero-img--fallback {
   background: linear-gradient(135deg, #F0F9FF 0%, #E8F4FD 60%, #F0F9FF 100%);
 }
-[data-theme="light"] .article-thumb--fallback::before {
+[data-theme="light"] .article-thumb--fallback::before,
+[data-theme="light"] .article-hero-img--fallback::before {
   background-image: radial-gradient(circle, rgba(8,145,178,0.15) 1px, transparent 1px);
 }
-[data-theme="light"] .article-thumb--fallback::after {
+[data-theme="light"] .article-thumb--fallback::after,
+[data-theme="light"] .article-hero-img--fallback::after {
   background: radial-gradient(ellipse at center, rgba(8,145,178,0.1) 0%, transparent 60%);
+}
+[data-theme="light"] .article-thumb--fallback .sc-cat,
+[data-theme="light"] .article-hero-img--fallback .sc-cat {
+  color: rgba(8,145,178,0.5);
 }
 
 [data-theme="light"] .category-icon,
