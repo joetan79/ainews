@@ -70,16 +70,16 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(6,182,212,0.07) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(6,182,212,0.18) 1px, transparent 1px);
   background-size: 18px 18px;
   z-index: 0;
-  animation: sc-fallback-shimmer 5s linear infinite;
+  animation: sc-fallback-shimmer 3s linear infinite;
 }
 .article-thumb--fallback::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgba(6,182,212,0.08) 0%, transparent 60%);
+  background: radial-gradient(ellipse at center, rgba(6,182,212,0.18) 0%, transparent 60%);
   z-index: 0;
   animation: sc-fallback-glow 3.5s ease-in-out infinite;
 }
@@ -173,16 +173,16 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(6,182,212,0.07) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(6,182,212,0.18) 1px, transparent 1px);
   background-size: 18px 18px;
   z-index: 0;
-  animation: sc-fallback-shimmer 5s linear infinite;
+  animation: sc-fallback-shimmer 3s linear infinite;
 }
 .article-hero-img--fallback::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgba(6,182,212,0.08) 0%, transparent 60%);
+  background: radial-gradient(ellipse at center, rgba(6,182,212,0.18) 0%, transparent 60%);
   z-index: 0;
   animation: sc-fallback-glow 3.5s ease-in-out infinite;
 }
@@ -348,6 +348,11 @@ body {
   align-items: center;
   gap: 5px;
   text-align: center;
+  animation: sc-text-float 3s ease-in-out infinite;
+}
+@keyframes sc-text-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-4px); }
 }
 
 .sc-src {
@@ -574,15 +579,15 @@ body {
   font-family: 'Playfair Display', serif;
   font-size: 1.8rem;
   font-weight: 900;
-  color: rgba(6,182,212,0.06);
+  color: rgba(6,182,212,0.12);
   letter-spacing: -0.02em;
   z-index: 0;
   user-select: none;
-  animation: sc-abbot-glow 5s ease-in-out infinite;
+  animation: sc-abbot-glow 4s ease-in-out infinite;
 }
 @keyframes sc-abbot-glow {
-  0%, 100% { filter: brightness(1); }
-  50%       { filter: brightness(4); }
+  0%, 100% { filter: brightness(1);   opacity: 0.7; }
+  50%       { filter: brightness(5);  opacity: 1; }
 }
 .source-card--6 .sc-src {
   color: rgba(6,182,212,0.85);
