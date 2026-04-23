@@ -114,13 +114,11 @@
               </div>
             {% elif featured_domain %}
               <div class="article-thumb article-thumb--fallback">
-                <img
-                  class="favicon-img"
-                  src="https://www.google.com/s2/favicons?domain={{ featured_domain }}&sz=64"
-                  alt="{{ featured_domain }}"
-                  referrerpolicy="no-referrer"
-                  onerror="handleFaviconError(this, '{{ featured_icon }}')"
-                >
+                <div class="sc-inner">
+                  <img class="favicon-img favicon-img--card" src="https://www.google.com/s2/favicons?domain={{ featured_domain }}&sz=64" alt="{{ featured_domain }}" referrerpolicy="no-referrer" onerror="this.style.display='none'">
+                  <span class="sc-src">{{ featured_domain }}</span>
+                  <span class="sc-cat">{{ featured.category or 'AI & Tech' }}</span>
+                </div>
               </div>
             {% else %}
               <div class="article-thumb article-thumb--icon">
@@ -184,13 +182,11 @@
                 </div>
               {% elif domain %}
                 <div class="article-thumb article-thumb--fallback">
-                  <img
-                    class="favicon-img"
-                    src="https://www.google.com/s2/favicons?domain={{ domain }}&sz=64"
-                    alt="{{ domain }}"
-                    referrerpolicy="no-referrer"
-                    onerror="handleFaviconError(this, '{{ icon }}')"
-                  >
+                  <div class="sc-inner">
+                    <img class="favicon-img favicon-img--card" src="https://www.google.com/s2/favicons?domain={{ domain }}&sz=64" alt="{{ domain }}" referrerpolicy="no-referrer" onerror="this.style.display='none'">
+                    <span class="sc-src">{{ domain }}</span>
+                    <span class="sc-cat">{{ article.category or 'AI & Tech' }}</span>
+                  </div>
                 </div>
               {% else %}
                 <div class="article-thumb article-thumb--icon">
@@ -253,13 +249,11 @@
                 </div>
               {% elif domain %}
                 <div class="article-thumb article-thumb--fallback">
-                  <img
-                    class="favicon-img"
-                    src="https://www.google.com/s2/favicons?domain={{ domain }}&sz=64"
-                    alt="{{ domain }}"
-                    referrerpolicy="no-referrer"
-                    onerror="handleFaviconError(this, '{{ icon }}')"
-                  >
+                  <div class="sc-inner">
+                    <img class="favicon-img favicon-img--card" src="https://www.google.com/s2/favicons?domain={{ domain }}&sz=64" alt="{{ domain }}" referrerpolicy="no-referrer" onerror="this.style.display='none'">
+                    <span class="sc-src">{{ domain }}</span>
+                    <span class="sc-cat">{{ article.category or 'AI & Tech' }}</span>
+                  </div>
                 </div>
               {% else %}
                 <div class="article-thumb article-thumb--icon">

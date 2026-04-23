@@ -56,7 +56,42 @@ body {
   background: var(--image-bg, #1a1a2e);
 }
 
-.article-thumb--fallback,
+.article-thumb--fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #060B16 0%, #0A1525 60%, #060E1C 100%);
+  position: relative;
+  overflow: hidden;
+}
+.article-thumb--fallback::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(6,182,212,0.07) 1px, transparent 1px);
+  background-size: 18px 18px;
+  z-index: 0;
+  animation: sc-fallback-shimmer 5s linear infinite;
+}
+.article-thumb--fallback::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(6,182,212,0.08) 0%, transparent 60%);
+  z-index: 0;
+  animation: sc-fallback-glow 3.5s ease-in-out infinite;
+}
+@keyframes sc-fallback-shimmer {
+  0%   { background-position: 0px 0px; }
+  100% { background-position: 18px 18px; }
+}
+@keyframes sc-fallback-glow {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
+
 .article-thumb--icon {
   width: 100%;
   height: 100%;
@@ -65,7 +100,6 @@ body {
   justify-content: center;
   background: linear-gradient(135deg, var(--card-bg, #0f0f1a) 0%, var(--accent-dim, #1a1a3e) 100%);
   position: relative;
-  /* NOT absolute */
 }
 
 .favicon-img {
@@ -73,6 +107,15 @@ body {
   height: 48px;
   object-fit: contain;
   opacity: 0.85;
+}
+
+.favicon-img--card {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 6px;
+  opacity: 0.9;
+  flex-shrink: 0;
 }
 
 .category-icon {
@@ -149,11 +192,19 @@ body {
   --accent-dim: #d0d0e8;
 }
 
-[data-theme="light"] .article-thumb--fallback,
 [data-theme="light"] .article-thumb--icon,
 [data-theme="light"] .article-hero-img--fallback,
 [data-theme="light"] .article-hero-img--icon {
   background: linear-gradient(135deg, #e8e8f0 0%, #d8d8ee 100%);
+}
+[data-theme="light"] .article-thumb--fallback {
+  background: linear-gradient(135deg, #F0F9FF 0%, #E8F4FD 60%, #F0F9FF 100%);
+}
+[data-theme="light"] .article-thumb--fallback::before {
+  background-image: radial-gradient(circle, rgba(8,145,178,0.15) 1px, transparent 1px);
+}
+[data-theme="light"] .article-thumb--fallback::after {
+  background: radial-gradient(ellipse at center, rgba(8,145,178,0.1) 0%, transparent 60%);
 }
 
 [data-theme="light"] .category-icon,
@@ -373,6 +424,11 @@ body {
     -38px  24px 0 rgba(6,182,212,0.25),
       0px -36px 0 rgba(6,182,212,0.2);
   z-index: 1;
+  animation: sc-topology-float 4s ease-in-out infinite;
+}
+@keyframes sc-topology-float {
+  0%, 100% { transform: translateY(0px); opacity: 0.9; }
+  50%       { transform: translateY(-5px); opacity: 1; }
 }
 
 /* ── Card 4: Waveform ────────────────────────────────────── */
@@ -416,6 +472,11 @@ body {
   mask-repeat: no-repeat;
   -webkit-mask-repeat: no-repeat;
   z-index: 1;
+  animation: sc-wave-pulse 3.5s ease-in-out infinite;
+}
+@keyframes sc-wave-pulse {
+  0%, 100% { transform: translateX(-50%) scaleY(1);   opacity: 0.65; }
+  50%       { transform: translateX(-50%) scaleY(1.3); opacity: 1; }
 }
 
 /* ── Card 5: Halftone ────────────────────────────────────── */
@@ -431,6 +492,11 @@ body {
   mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
   -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
   z-index: 0;
+  animation: sc-halftone-scroll 5s linear infinite;
+}
+@keyframes sc-halftone-scroll {
+  0%   { background-position: 0px 0px; }
+  100% { background-position: 14px 14px; }
 }
 .source-card--5::after {
   content: '';
@@ -438,6 +504,11 @@ body {
   inset: 0;
   background: radial-gradient(ellipse at center, rgba(6,182,212,0.06) 0%, transparent 65%);
   z-index: 0;
+  animation: sc-halftone-glow 3.5s ease-in-out infinite;
+}
+@keyframes sc-halftone-glow {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1; }
 }
 
 /* ── Card 6: ABbot Circuit ───────────────────────────────── */
@@ -467,6 +538,11 @@ body {
   letter-spacing: -0.02em;
   z-index: 0;
   user-select: none;
+  animation: sc-abbot-glow 5s ease-in-out infinite;
+}
+@keyframes sc-abbot-glow {
+  0%, 100% { filter: brightness(1); }
+  50%       { filter: brightness(4); }
 }
 .source-card--6 .sc-src {
   color: rgba(6,182,212,0.85);
