@@ -25,7 +25,7 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <link rel="stylesheet" href="/static/style.css?v=11" />
+  <link rel="stylesheet" href="/static/style.css?v=12" />
 
   <!-- Apply theme BEFORE render to prevent flash of wrong theme -->
   <script>
@@ -237,24 +237,34 @@
     }
 
     .theme-toggle-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
+      height: 30px;
+      padding: 6px 7px;
+      border: none;
+      border-radius: 4px;
       background: transparent;
       cursor: pointer;
-      font-size: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
+      transition: opacity 0.2s;
       flex-shrink: 0;
-      padding: 0;
+      color: var(--text-primary);
+    }
+    .theme-toggle-btn:hover {
+      opacity: 0.55;
+    }
+    .theme-toggle-btn svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+      flex-shrink: 0;
     }
 
-    .theme-toggle-btn:hover {
-      background: var(--bg-secondary);
-    }
+    /* CSS-driven icon swap — no JS needed */
+    #theme-toggle .icon-sun  { display: block; }
+    #theme-toggle .icon-moon { display: none; }
+    [data-theme="dark"] #theme-toggle .icon-sun  { display: none; }
+    [data-theme="dark"] #theme-toggle .icon-moon { display: block; }
 
     .translate-btn {
       height: 34px;
@@ -345,7 +355,8 @@
       .navbar-inner { height: 60px; padding: 0 24px; }
       .navbar-logo-text { font-size: 18px; }
       .navbar-logo-badge { display: inline; }
-      .theme-toggle-btn { width: 38px; height: 38px; font-size: 16px; }
+      .theme-toggle-btn { height: 32px; }
+      .theme-toggle-btn svg { width: 17px; height: 17px; }
       .translate-btn { height: 38px; padding: 0 14px; font-size: 13px; }
       .subscribe-nav-btn { height: 38px; padding: 0 16px; font-size: 13px; }
       body { padding-top: 60px; }
@@ -356,7 +367,8 @@
       .navbar-inner { height: 64px; gap: 12px; }
       .navbar-logo-text { font-size: 20px; }
       .navbar-actions { gap: 10px; }
-      .theme-toggle-btn { width: 40px; height: 40px; }
+      .theme-toggle-btn { height: 34px; }
+      .theme-toggle-btn svg { width: 18px; height: 18px; }
       .translate-btn { height: 40px; padding: 0 16px; font-size: 14px; }
       .subscribe-nav-btn { height: 40px; padding: 0 20px; font-size: 14px; }
       body { padding-top: 64px; }
@@ -594,8 +606,17 @@
             id="theme-toggle"
             class="theme-toggle-btn"
             onclick="toggleTheme()"
-            title="Toggle dark/light mode">
-            🌙
+            title="Toggle dark/light mode"
+            aria-label="Toggle dark/light mode">
+            <!-- Sun: shown in light mode -->
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="5"/>
+              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+            <!-- Moon: shown in dark mode -->
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
           </button>
 
         </div>
@@ -649,7 +670,6 @@
       document.documentElement.setAttribute('data-theme', theme);
       var btn = document.getElementById('theme-toggle');
       if (btn) {
-        btn.textContent = theme === 'dark' ? '☀️' : '🌙';
         btn.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
       }
     }
