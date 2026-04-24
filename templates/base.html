@@ -618,6 +618,88 @@
       84%  { transform: rotate(-2deg)  translateY(0);    }
       100% { transform: rotate(0deg)   translateY(0);    }
     }
+
+    /* ============================================
+       FOOTER SUBSCRIBE FORM
+       ============================================ */
+    .footer-subscribe {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    .footer-sub-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .footer-sub-row {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+    .footer-sub-input {
+      height: 30px;
+      padding: 0 9px;
+      border-radius: 7px;
+      border: 1px solid var(--border-color);
+      background: var(--input-bg);
+      color: var(--input-text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.76rem;
+      width: 160px;
+      transition: border-color 0.2s;
+    }
+    .footer-sub-input::placeholder { color: var(--input-placeholder); }
+    .footer-sub-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .footer-sub-btn {
+      height: 30px;
+      padding: 0 11px;
+      border-radius: 7px;
+      border: none;
+      background: var(--accent);
+      color: var(--btn-primary-text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.73rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .footer-sub-btn:hover { background: var(--accent-hover); }
+    .footer-sub-msg {
+      display: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.68rem;
+      margin: 0;
+    }
+
+    @media (max-width: 768px) {
+      .footer-inner {
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 0.875rem !important;
+        padding: 1.25rem 1rem !important;
+        text-align: center;
+      }
+      .footer-inner > p { text-align: center; }
+      .footer-subscribe { align-items: center; width: 100%; }
+      .footer-sub-row { width: 100%; max-width: 280px; }
+      .footer-sub-input { width: auto; flex: 1; min-width: 0; }
+      .footer-right-col { align-items: center !important; }
+      .robot-contact-link { padding: 4px 8px; gap: 8px; }
+      .robot-contact-text { align-items: center; }
+      .robot-tagline { font-size: 0.65rem; }
+      .robot-email { font-size: 0.60rem; }
+      .robot-svg { width: 24px; height: 28px; }
+    }
   </style>
 </head>
 <body>
@@ -710,43 +792,119 @@
   </main>
 
   <!-- Footer -->
-  <footer style="border-top: 1px solid var(--border); background: var(--bg-card); margin-top: 5rem;">
-    <div style="max-width: 1280px; margin: 0 auto; padding: 2rem 1.5rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
-      <p style="font-family: 'DM Sans', sans-serif; font-size: 0.8125rem; color: var(--text-faint);">
-        &copy; {{ now.year if now else '2026' }} AI &amp; Tech Daily. All rights reserved.
+  <footer style="border-top: 1px solid var(--border-color); background: var(--footer-bg);">
+    <div class="footer-inner" style="max-width: 1280px; margin: 0 auto; padding: 1.125rem 1.5rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem;">
+
+      <!-- LEFT: Copyright -->
+      <p style="font-family: 'DM Sans', sans-serif; font-size: 0.8125rem; color: var(--text-faint); margin: 0; line-height: 1.6;">
+        &copy; {{ now.year if now else '2026' }} AI &amp; Tech Daily.<br>All rights reserved.
       </p>
-      <a href="mailto:abbotntech@gmail.com" class="robot-contact-link" aria-label="Contact us by email">
-        <svg class="robot-svg" viewBox="0 0 48 56" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="24" y1="3" x2="24" y2="9"/>
-          <circle cx="24" cy="2" r="2" fill="currentColor" stroke="none"/>
-          <rect x="10" y="9" width="28" height="22" rx="5"/>
-          <circle cx="18" cy="18" r="3.2"/>
-          <circle cx="30" cy="18" r="3.2"/>
-          <circle cx="18" cy="18" r="1.3" fill="currentColor" stroke="none"/>
-          <circle cx="30" cy="18" r="1.3" fill="currentColor" stroke="none"/>
-          <path d="M16 25 Q24 30.5 32 25"/>
-          <line x1="21" y1="31" x2="21" y2="33"/>
-          <line x1="27" y1="31" x2="27" y2="33"/>
-          <rect x="7" y="33" width="34" height="20" rx="4"/>
-          <rect x="14" y="37" width="20" height="11" rx="2.5"/>
-          <circle cx="19.5" cy="42.5" r="1.8"/>
-          <circle cx="24" cy="42.5" r="1.8"/>
-          <circle cx="28.5" cy="42.5" r="1.8"/>
-          <rect x="0" y="33" width="6" height="15" rx="3"/>
-          <rect x="42" y="33" width="6" height="15" rx="3"/>
-          <path d="M1 49 Q3 52 5 49"/>
-          <path d="M43 49 Q45 52 47 49"/>
-        </svg>
-        <div class="robot-contact-text">
-          <span class="robot-tagline">Beep boop - talk to us!</span>
-          <span class="robot-email">abbotntech@gmail.com</span>
-        </div>
-      </a>
-      <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--footer-text); font-style: italic;">
-        Powered by ABbot
-      </p>
+
+      <!-- CENTER: Subscribe form -->
+      <div class="footer-subscribe">
+        <span class="footer-sub-label">Never miss an update</span>
+        <form id="subscribe-form-footer" class="footer-sub-row">
+          <input
+            type="email"
+            id="subscribe-email-footer"
+            placeholder="your@email.com"
+            required
+            autocomplete="email"
+            class="footer-sub-input dark-input"
+          />
+          <button type="submit" id="subscribe-btn-footer" class="footer-sub-btn">Subscribe</button>
+        </form>
+        <p id="subscribe-msg-footer" class="footer-sub-msg"></p>
+      </div>
+
+      <!-- RIGHT: Robot contact + ABbot credit -->
+      <div class="footer-right-col" style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
+        <a href="mailto:abbotntech@gmail.com" class="robot-contact-link" aria-label="Contact us by email">
+          <svg class="robot-svg" viewBox="0 0 48 56" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="24" y1="3" x2="24" y2="9"/>
+            <circle cx="24" cy="2" r="2" fill="currentColor" stroke="none"/>
+            <rect x="10" y="9" width="28" height="22" rx="5"/>
+            <circle cx="18" cy="18" r="3.2"/>
+            <circle cx="30" cy="18" r="3.2"/>
+            <circle cx="18" cy="18" r="1.3" fill="currentColor" stroke="none"/>
+            <circle cx="30" cy="18" r="1.3" fill="currentColor" stroke="none"/>
+            <path d="M16 25 Q24 30.5 32 25"/>
+            <line x1="21" y1="31" x2="21" y2="33"/>
+            <line x1="27" y1="31" x2="27" y2="33"/>
+            <rect x="7" y="33" width="34" height="20" rx="4"/>
+            <rect x="14" y="37" width="20" height="11" rx="2.5"/>
+            <circle cx="19.5" cy="42.5" r="1.8"/>
+            <circle cx="24" cy="42.5" r="1.8"/>
+            <circle cx="28.5" cy="42.5" r="1.8"/>
+            <rect x="0" y="33" width="6" height="15" rx="3"/>
+            <rect x="42" y="33" width="6" height="15" rx="3"/>
+            <path d="M1 49 Q3 52 5 49"/>
+            <path d="M43 49 Q45 52 47 49"/>
+          </svg>
+          <div class="robot-contact-text">
+            <span class="robot-tagline">Beep boop &ndash; talk to us!</span>
+            <span class="robot-email">abbotntech@gmail.com</span>
+          </div>
+        </a>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--footer-text); font-style: italic; padding-right: 16px;">Powered by ABbot</span>
+      </div>
+
     </div>
   </footer>
+
+  <script>
+    const STATUS_LABELS = {
+      success:            { text: '✓ You’re in! Check your inbox.',       color: '#22C55E' },
+      already_subscribed: { text: 'Already subscribed — you’re all set!', color: '#06B6D4' },
+      invalid_email:      { text: 'Please enter a valid email address.',            color: '#EF4444' },
+    };
+
+    async function handleSubscribe(emailId, btnId, msgId) {
+      const emailEl  = document.getElementById(emailId);
+      const btn      = document.getElementById(btnId);
+      const msg      = document.getElementById(msgId);
+      const email    = emailEl.value.trim();
+      if (!email) return;
+
+      const origText = btn.textContent;
+      btn.disabled = true;
+      btn.style.animation = 'none';
+      btn.innerHTML = '<svg class="spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:middle;margin-right:4px"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>…';
+
+      try {
+        const res  = await fetch('/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        const info = STATUS_LABELS[data.status] || { text: data.message || 'Something went wrong.', color: '#EF4444' };
+        msg.style.color   = info.color;
+        msg.textContent   = info.text;
+        msg.style.display = 'block';
+        if (data.status === 'success') emailEl.value = '';
+      } catch {
+        msg.style.color   = '#EF4444';
+        msg.textContent   = 'Something went wrong. Please try again.';
+        msg.style.display = 'block';
+      } finally {
+        btn.disabled    = false;
+        btn.textContent = origText;
+        btn.style.animation = btn.classList.contains('subscribe-pulse')
+          ? 'pulseCyan 2.2s ease-in-out infinite' : '';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var footerForm = document.getElementById('subscribe-form-footer');
+      if (footerForm) {
+        footerForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          handleSubscribe('subscribe-email-footer', 'subscribe-btn-footer', 'subscribe-msg-footer');
+        });
+      }
+    });
+  </script>
 
   {% block scripts %}{% endblock %}
 
