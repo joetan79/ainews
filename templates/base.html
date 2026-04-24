@@ -555,6 +555,69 @@
     }
 
     .skiptranslate { display: none !important; }
+
+    /* ============================================
+       ROBOT CONTACT (footer inline)
+       ============================================ */
+    .robot-contact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-muted);
+      padding: 6px 16px;
+      border-radius: 14px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .robot-contact-link:hover {
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .robot-svg {
+      width: 36px;
+      height: 42px;
+      flex-shrink: 0;
+      transition: color 0.2s;
+      transform-origin: center bottom;
+    }
+
+    .robot-contact-link:hover .robot-svg {
+      color: var(--accent);
+      animation: robotWiggle 0.65s ease forwards;
+    }
+
+    .robot-contact-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+    }
+
+    .robot-tagline {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.73rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .robot-email {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--accent);
+      opacity: 0.85;
+    }
+
+    @keyframes robotWiggle {
+      0%   { transform: rotate(0deg)   translateY(0);    }
+      15%  { transform: rotate(-11deg) translateY(-4px); }
+      32%  { transform: rotate(9deg)   translateY(-6px); }
+      50%  { transform: rotate(-7deg)  translateY(-3px); }
+      68%  { transform: rotate(5deg)   translateY(-1px); }
+      84%  { transform: rotate(-2deg)  translateY(0);    }
+      100% { transform: rotate(0deg)   translateY(0);    }
+    }
   </style>
 </head>
 <body>
@@ -652,6 +715,33 @@
       <p style="font-family: 'DM Sans', sans-serif; font-size: 0.8125rem; color: var(--text-faint);">
         &copy; {{ now.year if now else '2026' }} AI &amp; Tech Daily. All rights reserved.
       </p>
+      <a href="mailto:abbotntech@gmail.com" class="robot-contact-link" aria-label="Contact us by email">
+        <svg class="robot-svg" viewBox="0 0 48 56" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="24" y1="3" x2="24" y2="9"/>
+          <circle cx="24" cy="2" r="2" fill="currentColor" stroke="none"/>
+          <rect x="10" y="9" width="28" height="22" rx="5"/>
+          <circle cx="18" cy="18" r="3.2"/>
+          <circle cx="30" cy="18" r="3.2"/>
+          <circle cx="18" cy="18" r="1.3" fill="currentColor" stroke="none"/>
+          <circle cx="30" cy="18" r="1.3" fill="currentColor" stroke="none"/>
+          <path d="M16 25 Q24 30.5 32 25"/>
+          <line x1="21" y1="31" x2="21" y2="33"/>
+          <line x1="27" y1="31" x2="27" y2="33"/>
+          <rect x="7" y="33" width="34" height="20" rx="4"/>
+          <rect x="14" y="37" width="20" height="11" rx="2.5"/>
+          <circle cx="19.5" cy="42.5" r="1.8"/>
+          <circle cx="24" cy="42.5" r="1.8"/>
+          <circle cx="28.5" cy="42.5" r="1.8"/>
+          <rect x="0" y="33" width="6" height="15" rx="3"/>
+          <rect x="42" y="33" width="6" height="15" rx="3"/>
+          <path d="M1 49 Q3 52 5 49"/>
+          <path d="M43 49 Q45 52 47 49"/>
+        </svg>
+        <div class="robot-contact-text">
+          <span class="robot-tagline">Beep boop - talk to us!</span>
+          <span class="robot-email">abbotntech@gmail.com</span>
+        </div>
+      </a>
       <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--footer-text); font-style: italic;">
         Powered by ABbot
       </p>
