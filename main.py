@@ -1,5 +1,6 @@
 import os
 import re
+import html as _html
 import logging
 from datetime import datetime, timedelta
 from typing import Optional
@@ -24,6 +25,17 @@ from dotenv import load_dotenv
 from database import get_db, init_db, SessionLocal, NewsArticle, Subscriber
 
 logger = logging.getLogger(__name__)
+
+
+def _clean(text: str) -> str:
+    """Decode HTML entities and strip tags from incoming article text."""
+    if not text:
+        return ""
+    text = _html.unescape(text)
+    text = re.sub(r"<[^>]+>", "", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
 
 def tpl_globals():
     return {"now": datetime.utcnow()}
@@ -282,7 +294,7 @@ def publish_articles(
     saved_dicts = []
     skipped = []
     for item in payload.articles:
-        existing = db.query(NewsArticle).filter(NewsArticle.title == item.title).first()
+        existing = db.query(NewsArticle).filter(NewsArticle.title == _clean(item.title)).first()
         if existing:
             skipped.append(existing.id)
             continue
@@ -302,9 +314,11 @@ def publish_articles(
         else:
             pub_date = datetime.utcnow()
 
+        clean_title   = _clean(item.title)
+        clean_summary = _clean(item.summary or "")
         article = NewsArticle(
-            title=item.title,
-            summary=item.summary if item.summary and len(item.summary) >= 20 else item.title,
+            title=clean_title,
+            summary=clean_summary if len(clean_summary) >= 20 else clean_title,
             category=item.category or "AI & Tech",
             source_url=item.source_url,
             image_url=None if item.image_blocked else proxy_image_url(item.image_url),

@@ -15,11 +15,23 @@ Usage:
     result = publish_to_website(articles)
 """
 
+import html as _html
+import re
 import logging
 import os
 
 import httpx
 from dotenv import load_dotenv
+
+
+def _clean(text: str) -> str:
+    """Decode HTML entities and strip tags from incoming text."""
+    if not text:
+        return ""
+    text = _html.unescape(text)
+    text = re.sub(r"<[^>]+>", "", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
 
 logger = logging.getLogger(__name__)
 
@@ -104,8 +116,8 @@ async def receive_x_posts(posts, db):
             continue
         seen_urls.add(url)
         item = XPost(
-            title=post.get("title", "")[:500],
-            summary=post.get("summary", "")[:2000],
+            title=_clean(post.get("title", ""))[:500],
+            summary=_clean(post.get("summary", ""))[:2000],
             source_url=url,
             source_name=post.get("source_name", "X"),
             published_date=post.get("published", ""),
