@@ -70,26 +70,26 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(6,182,212,0.18) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(6,182,212,0.40) 1px, transparent 1px);
   background-size: 18px 18px;
   z-index: 0;
-  animation: sc-fallback-shimmer 3s linear infinite;
+  animation: sc-fallback-shimmer 9s linear infinite;
 }
 .article-thumb--fallback::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgba(6,182,212,0.18) 0%, transparent 60%);
+  background: radial-gradient(ellipse at center, rgba(6,182,212,0.38) 0%, transparent 60%);
   z-index: 0;
-  animation: sc-fallback-glow 3.5s ease-in-out infinite;
+  animation: sc-fallback-glow 4s ease-in-out infinite alternate;
 }
 @keyframes sc-fallback-shimmer {
   0%   { background-position: 0px 0px; }
   100% { background-position: 18px 18px; }
 }
 @keyframes sc-fallback-glow {
-  0%, 100% { opacity: 0.5; }
-  50%       { opacity: 1; }
+  0%   { opacity: 0.30; }
+  100% { opacity: 0.88; }
 }
 
 .article-thumb--icon {
@@ -173,18 +173,18 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(6,182,212,0.18) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(6,182,212,0.40) 1px, transparent 1px);
   background-size: 18px 18px;
   z-index: 0;
-  animation: sc-fallback-shimmer 3s linear infinite;
+  animation: sc-fallback-shimmer 9s linear infinite;
 }
 .article-hero-img--fallback::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgba(6,182,212,0.18) 0%, transparent 60%);
+  background: radial-gradient(ellipse at center, rgba(6,182,212,0.38) 0%, transparent 60%);
   z-index: 0;
-  animation: sc-fallback-glow 3.5s ease-in-out infinite;
+  animation: sc-fallback-glow 4s ease-in-out infinite alternate;
 }
 .article-hero-img--fallback .sc-src {
   font-size: 0.9rem;
@@ -236,11 +236,11 @@ body {
 }
 [data-theme="light"] .article-thumb--fallback::before,
 [data-theme="light"] .article-hero-img--fallback::before {
-  background-image: radial-gradient(circle, rgba(8,145,178,0.15) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(8,145,178,0.45) 1px, transparent 1px);
 }
 [data-theme="light"] .article-thumb--fallback::after,
 [data-theme="light"] .article-hero-img--fallback::after {
-  background: radial-gradient(ellipse at center, rgba(8,145,178,0.1) 0%, transparent 60%);
+  background: radial-gradient(ellipse at center, rgba(8,145,178,0.32) 0%, transparent 60%);
 }
 [data-theme="light"] .article-thumb--fallback .sc-cat,
 [data-theme="light"] .article-hero-img--fallback .sc-cat {
@@ -382,8 +382,8 @@ body {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(6,182,212,0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(6,182,212,0.07) 1px, transparent 1px);
+    linear-gradient(rgba(6,182,212,0.20) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6,182,212,0.20) 1px, transparent 1px);
   background-size: 22px 22px;
   z-index: 0;
 }
@@ -393,13 +393,13 @@ body {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  border: 1.5px solid rgba(6,182,212,0.45);
-  animation: sc-pulse 2.2s ease-in-out infinite;
+  border: 2px solid rgba(6,182,212,0.75);
+  animation: sc-pulse 1.7s ease-in-out infinite;
   z-index: 1;
 }
 @keyframes sc-pulse {
-  0%,100% { transform: scale(1); opacity: 0.8; }
-  50%      { transform: scale(1.4); opacity: 0.15; }
+  0%,100% { transform: scale(1);   opacity: 1.0; }
+  50%      { transform: scale(1.8); opacity: 0.05; }
 }
 
 /* ── Card 2: Scan Frame ──────────────────────────────────── */
@@ -410,9 +410,9 @@ body {
   content: '';
   position: absolute;
   width: 100%;
-  height: 1.5px;
-  background: linear-gradient(90deg, transparent 0%, rgba(6,182,212,0.6) 50%, transparent 100%);
-  animation: sc-scan 3s ease-in-out infinite;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(6,182,212,0.90) 50%, transparent 100%);
+  animation: sc-scan 2.4s ease-in-out infinite;
   top: 0;
   z-index: 1;
 }
@@ -426,21 +426,21 @@ body {
 .source-card--2 .sc-inner::after {
   content: '';
   position: absolute;
-  width: 14px;
-  height: 14px;
-  border-color: rgba(6,182,212,0.5);
+  width: 16px;
+  height: 16px;
+  border-color: rgba(6,182,212,0.82);
   border-style: solid;
   border-width: 0;
 }
 .source-card--2 .sc-inner::before {
-  top: -20px; left: -20px;
-  border-top-width: 1.5px;
-  border-left-width: 1.5px;
+  top: -22px; left: -22px;
+  border-top-width: 2.5px;
+  border-left-width: 2.5px;
 }
 .source-card--2 .sc-inner::after {
-  bottom: -20px; right: -20px;
-  border-bottom-width: 1.5px;
-  border-right-width: 1.5px;
+  bottom: -22px; right: -22px;
+  border-bottom-width: 2.5px;
+  border-right-width: 2.5px;
 }
 
 /* ── Card 3: Topology ────────────────────────────────────── */
@@ -451,29 +451,29 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle at 30% 40%, rgba(6,182,212,0.08) 0%, transparent 60%),
-                    radial-gradient(circle at 70% 60%, rgba(6,182,212,0.06) 0%, transparent 50%);
+  background-image: radial-gradient(circle at 30% 40%, rgba(6,182,212,0.22) 0%, transparent 60%),
+                    radial-gradient(circle at 70% 60%, rgba(6,182,212,0.18) 0%, transparent 50%);
   z-index: 0;
 }
 /* Topology lines via box-shadow trick on pseudo */
 .source-card--3::after {
   content: '';
   position: absolute;
-  width: 4px; height: 4px;
+  width: 5px; height: 5px;
   border-radius: 50%;
-  background: rgba(6,182,212,0.5);
+  background: rgba(6,182,212,0.85);
   box-shadow:
-    -40px -20px 0 rgba(6,182,212,0.25),
-     40px -18px 0 rgba(6,182,212,0.25),
-     38px  22px 0 rgba(6,182,212,0.25),
-    -38px  24px 0 rgba(6,182,212,0.25),
-      0px -36px 0 rgba(6,182,212,0.2);
+    -40px -20px 0 rgba(6,182,212,0.55),
+     40px -18px 0 rgba(6,182,212,0.55),
+     38px  22px 0 rgba(6,182,212,0.55),
+    -38px  24px 0 rgba(6,182,212,0.55),
+      0px -36px 0 rgba(6,182,212,0.45);
   z-index: 1;
-  animation: sc-topology-float 4s ease-in-out infinite;
+  animation: sc-topology-float 3.2s ease-in-out infinite;
 }
 @keyframes sc-topology-float {
-  0%, 100% { transform: translateY(0px); opacity: 0.9; }
-  50%       { transform: translateY(-5px); opacity: 1; }
+  0%, 100% { transform: translateY(0px);  opacity: 0.85; }
+  50%       { transform: translateY(-8px); opacity: 1; }
 }
 
 /* ── Card 4: Waveform ────────────────────────────────────── */
@@ -488,8 +488,8 @@ body {
     90deg,
     rgba(6,182,212,0.0)  0px,
     rgba(6,182,212,0.0)  5px,
-    rgba(6,182,212,0.04) 5px,
-    rgba(6,182,212,0.04) 6px
+    rgba(6,182,212,0.14) 5px,
+    rgba(6,182,212,0.14) 6px
   );
   z-index: 0;
 }
@@ -517,11 +517,11 @@ body {
   mask-repeat: no-repeat;
   -webkit-mask-repeat: no-repeat;
   z-index: 1;
-  animation: sc-wave-pulse 3.5s ease-in-out infinite;
+  animation: sc-wave-pulse 2.6s ease-in-out infinite;
 }
 @keyframes sc-wave-pulse {
-  0%, 100% { transform: translateX(-50%) scaleY(1);   opacity: 0.65; }
-  50%       { transform: translateX(-50%) scaleY(1.3); opacity: 1; }
+  0%, 100% { transform: translateX(-50%) scaleY(1);   opacity: 0.50; }
+  50%       { transform: translateX(-50%) scaleY(1.6); opacity: 1; }
 }
 
 /* ── Card 5: Halftone ────────────────────────────────────── */
@@ -532,12 +532,12 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(6,182,212,0.18) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(6,182,212,0.42) 1px, transparent 1px);
   background-size: 14px 14px;
   mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
   -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
   z-index: 0;
-  animation: sc-halftone-scroll 5s linear infinite;
+  animation: sc-halftone-scroll 3.8s linear infinite;
 }
 @keyframes sc-halftone-scroll {
   0%   { background-position: 0px 0px; }
@@ -547,12 +547,12 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgba(6,182,212,0.06) 0%, transparent 65%);
+  background: radial-gradient(ellipse at center, rgba(6,182,212,0.22) 0%, transparent 65%);
   z-index: 0;
   animation: sc-halftone-glow 3.5s ease-in-out infinite;
 }
 @keyframes sc-halftone-glow {
-  0%, 100% { opacity: 0.7; }
+  0%, 100% { opacity: 0.45; }
   50%       { opacity: 1; }
 }
 
@@ -566,11 +566,11 @@ body {
   inset: 0;
   background-image:
     /* Horizontal traces */
-    linear-gradient(90deg, transparent 0%, transparent 15%, rgba(6,182,212,0.12) 15%, rgba(6,182,212,0.12) 16%, transparent 16%),
-    linear-gradient(90deg, transparent 0%, transparent 75%, rgba(6,182,212,0.10) 75%, rgba(6,182,212,0.10) 76%, transparent 76%),
+    linear-gradient(90deg, transparent 0%, transparent 15%, rgba(6,182,212,0.30) 15%, rgba(6,182,212,0.30) 16%, transparent 16%),
+    linear-gradient(90deg, transparent 0%, transparent 75%, rgba(6,182,212,0.24) 75%, rgba(6,182,212,0.24) 76%, transparent 76%),
     /* Vertical traces */
-    linear-gradient(0deg, transparent 0%, transparent 25%, rgba(6,182,212,0.10) 25%, rgba(6,182,212,0.10) 26%, transparent 26%),
-    linear-gradient(0deg, transparent 0%, transparent 70%, rgba(6,182,212,0.08) 70%, rgba(6,182,212,0.08) 71%, transparent 71%);
+    linear-gradient(0deg, transparent 0%, transparent 25%, rgba(6,182,212,0.24) 25%, rgba(6,182,212,0.24) 26%, transparent 26%),
+    linear-gradient(0deg, transparent 0%, transparent 70%, rgba(6,182,212,0.20) 70%, rgba(6,182,212,0.20) 71%, transparent 71%);
   z-index: 0;
 }
 .source-card--6::after {
@@ -579,15 +579,15 @@ body {
   font-family: 'Playfair Display', serif;
   font-size: 1.8rem;
   font-weight: 900;
-  color: rgba(6,182,212,0.12);
+  color: rgba(6,182,212,0.28);
   letter-spacing: -0.02em;
   z-index: 0;
   user-select: none;
-  animation: sc-abbot-glow 4s ease-in-out infinite;
+  animation: sc-abbot-glow 3.2s ease-in-out infinite;
 }
 @keyframes sc-abbot-glow {
-  0%, 100% { filter: brightness(1);   opacity: 0.7; }
-  50%       { filter: brightness(5);  opacity: 1; }
+  0%, 100% { filter: brightness(1);    opacity: 0.60; }
+  50%       { filter: brightness(10);  opacity: 1; }
 }
 .source-card--6 .sc-src {
   color: rgba(6,182,212,0.85);
@@ -607,12 +607,12 @@ body {
 }
 [data-theme="light"] .source-card--1::before {
   background-image:
-    linear-gradient(rgba(8,145,178,0.15) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(8,145,178,0.15) 1px, transparent 1px);
+    linear-gradient(rgba(8,145,178,0.30) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(8,145,178,0.30) 1px, transparent 1px);
   background-size: 22px 22px;
 }
 [data-theme="light"] .source-card--1::after {
-  border-color: rgba(8,145,178,0.55);
+  border-color: rgba(8,145,178,0.82);
 }
 
 /* Card 2: Scan Frame — light */
@@ -620,11 +620,11 @@ body {
   background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
 }
 [data-theme="light"] .source-card--2::before {
-  background: linear-gradient(90deg, transparent 0%, rgba(8,145,178,0.7) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(8,145,178,0.92) 50%, transparent 100%);
 }
 [data-theme="light"] .source-card--2 .sc-inner::before,
 [data-theme="light"] .source-card--2 .sc-inner::after {
-  border-color: rgba(8,145,178,0.6);
+  border-color: rgba(8,145,178,0.88);
 }
 
 /* Card 3: Topology — light */
@@ -632,17 +632,17 @@ body {
   background: #EFF6FF;
 }
 [data-theme="light"] .source-card--3::before {
-  background-image: radial-gradient(circle at 30% 40%, rgba(8,145,178,0.12) 0%, transparent 60%),
-                    radial-gradient(circle at 70% 60%, rgba(8,145,178,0.09) 0%, transparent 50%);
+  background-image: radial-gradient(circle at 30% 40%, rgba(8,145,178,0.26) 0%, transparent 60%),
+                    radial-gradient(circle at 70% 60%, rgba(8,145,178,0.22) 0%, transparent 50%);
 }
 [data-theme="light"] .source-card--3::after {
-  background: rgba(8,145,178,0.6);
+  background: rgba(8,145,178,0.85);
   box-shadow:
-    -40px -20px 0 rgba(8,145,178,0.35),
-     40px -18px 0 rgba(8,145,178,0.35),
-     38px  22px 0 rgba(8,145,178,0.35),
-    -38px  24px 0 rgba(8,145,178,0.35),
-      0px -36px 0 rgba(8,145,178,0.3);
+    -40px -20px 0 rgba(8,145,178,0.65),
+     40px -18px 0 rgba(8,145,178,0.65),
+     38px  22px 0 rgba(8,145,178,0.65),
+    -38px  24px 0 rgba(8,145,178,0.65),
+      0px -36px 0 rgba(8,145,178,0.55);
 }
 
 /* Card 4: Waveform — light */
@@ -654,18 +654,18 @@ body {
     90deg,
     rgba(8,145,178,0.0)  0px,
     rgba(8,145,178,0.0)  5px,
-    rgba(8,145,178,0.08) 5px,
-    rgba(8,145,178,0.08) 6px
+    rgba(8,145,178,0.20) 5px,
+    rgba(8,145,178,0.20) 6px
   );
 }
 [data-theme="light"] .source-card--4::after {
   background: repeating-linear-gradient(
     90deg,
-    rgba(8,145,178,0)   0%,
-    rgba(8,145,178,0)   3%,
-    rgba(8,145,178,0.7) 4%,
-    rgba(8,145,178,0.7) 5%,
-    rgba(8,145,178,0)   6%
+    rgba(8,145,178,0)    0%,
+    rgba(8,145,178,0)    3%,
+    rgba(8,145,178,0.85) 4%,
+    rgba(8,145,178,0.85) 5%,
+    rgba(8,145,178,0)    6%
   );
 }
 
@@ -674,11 +674,11 @@ body {
   background: #F8FAFC;
 }
 [data-theme="light"] .source-card--5::before {
-  background-image: radial-gradient(circle, rgba(8,145,178,0.28) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(8,145,178,0.58) 1px, transparent 1px);
   background-size: 14px 14px;
 }
 [data-theme="light"] .source-card--5::after {
-  background: radial-gradient(ellipse at center, rgba(8,145,178,0.1) 0%, transparent 65%);
+  background: radial-gradient(ellipse at center, rgba(8,145,178,0.28) 0%, transparent 65%);
 }
 
 /* Card 6: ABbot Circuit — light */
@@ -687,13 +687,13 @@ body {
 }
 [data-theme="light"] .source-card--6::before {
   background-image:
-    linear-gradient(90deg, transparent 0%, transparent 15%, rgba(8,145,178,0.22) 15%, rgba(8,145,178,0.22) 16%, transparent 16%),
-    linear-gradient(90deg, transparent 0%, transparent 75%, rgba(8,145,178,0.18) 75%, rgba(8,145,178,0.18) 76%, transparent 76%),
-    linear-gradient(0deg, transparent 0%, transparent 25%, rgba(8,145,178,0.18) 25%, rgba(8,145,178,0.18) 26%, transparent 26%),
-    linear-gradient(0deg, transparent 0%, transparent 70%, rgba(8,145,178,0.14) 70%, rgba(8,145,178,0.14) 71%, transparent 71%);
+    linear-gradient(90deg, transparent 0%, transparent 15%, rgba(8,145,178,0.44) 15%, rgba(8,145,178,0.44) 16%, transparent 16%),
+    linear-gradient(90deg, transparent 0%, transparent 75%, rgba(8,145,178,0.38) 75%, rgba(8,145,178,0.38) 76%, transparent 76%),
+    linear-gradient(0deg, transparent 0%, transparent 25%, rgba(8,145,178,0.38) 25%, rgba(8,145,178,0.38) 26%, transparent 26%),
+    linear-gradient(0deg, transparent 0%, transparent 70%, rgba(8,145,178,0.32) 70%, rgba(8,145,178,0.32) 71%, transparent 71%);
 }
 [data-theme="light"] .source-card--6::after {
-  color: rgba(8,145,178,0.12);
+  color: rgba(8,145,178,0.24);
 }
 [data-theme="light"] .source-card--6 .sc-src {
   color: rgba(8,145,178,0.9);
@@ -972,4 +972,115 @@ body { top: 0 !important; }
     font-size: 12px;
     padding: 5px 7px;
   }
+}
+
+/* ── Card Robot Character ──────────────────────────────────── */
+
+.sc-robot {
+  position: absolute;
+  height: 90px;
+  width: auto;
+  opacity: 0.85;
+  z-index: 2;
+  overflow: visible;
+  color: #06B6D4;
+  pointer-events: none;
+}
+
+[data-theme="light"] .sc-robot {
+  color: #0891B2;
+}
+
+.sc-robot-arm-left,
+.sc-robot-arm-right {
+  transform-box: fill-box;
+  transform-origin: top center;
+}
+.sc-robot-antenna-group {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+}
+.sc-robot-head-group {
+  transform-box: fill-box;
+  transform-origin: center center;
+}
+.sc-robot-eye-l,
+.sc-robot-eye-r {
+  transform-box: fill-box;
+  transform-origin: center center;
+}
+
+/* Positions per variant */
+.sc-robot--1,
+.sc-robot--4,
+.sc-robot--fallback {
+  bottom: 12px;
+  right: 12px;
+}
+.sc-robot--2 {
+  bottom: 12px;
+  left: 12px;
+}
+.sc-robot--3 {
+  top: 12px;
+  right: 12px;
+}
+.sc-robot--5 {
+  top: 12px;
+  left: 12px;
+}
+.sc-robot--6 {
+  bottom: 12px;
+  left: 50%;
+}
+
+/* Animation assignments */
+.sc-robot--1 .sc-robot-arm-right { animation: robot-wave-r 2s ease-in-out infinite; }
+.sc-robot--2 { animation: robot-bounce 2.2s ease-in-out infinite; }
+.sc-robot--3 .sc-robot-head-group { animation: robot-head-tilt 2.8s ease-in-out infinite; }
+.sc-robot--4 .sc-robot-antenna-group { animation: robot-antenna-sway 1.6s ease-in-out infinite; }
+.sc-robot--5 .sc-robot-arm-left { animation: robot-wave-l 2s ease-in-out infinite; }
+.sc-robot--6 { animation: robot-sway 3s ease-in-out infinite; }
+.sc-robot--fallback .sc-robot-eye-l,
+.sc-robot--fallback .sc-robot-eye-r { animation: robot-blink 2.6s ease-in-out infinite; }
+
+/* Keyframes */
+@keyframes robot-blink {
+  0%, 40%, 60%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes robot-wave-r {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(-20deg); }
+  60% { transform: rotate(8deg); }
+}
+
+@keyframes robot-wave-l {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(20deg); }
+  60% { transform: rotate(-8deg); }
+}
+
+@keyframes robot-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes robot-head-tilt {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+
+@keyframes robot-antenna-sway {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-18deg); }
+  75% { transform: rotate(18deg); }
+}
+
+@keyframes robot-sway {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  33% { transform: translateX(calc(-50% - 5px)) rotate(-3deg); }
+  66% { transform: translateX(calc(-50% + 5px)) rotate(3deg); }
 }
