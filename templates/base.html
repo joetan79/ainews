@@ -6,8 +6,8 @@
   <title>{% block title %}AI & Tech Daily{% endblock %}</title>
 
   <!-- Favicons -->
-  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-  <link rel="shortcut icon" href="/static/favicon.svg">
+  <link rel="icon" type="image/png" href="/static/favicon.png">
+  <link rel="apple-touch-icon" href="/static/favicon.png">
   <meta name="theme-color" content="#06B6D4">
 
   <!-- Open Graph -->
@@ -710,6 +710,7 @@
 
       <!-- Logo -->
       <a href="/" class="navbar-logo">
+        <img src="/static/signal-animated.svg" alt="logo" style="width:63px;height:63px;margin-right:8px;vertical-align:middle;">
         <span class="navbar-logo-text">AI &amp; Tech Daily</span>
         <span class="navbar-logo-badge">AI &amp; Tech</span>
       </a>
@@ -796,9 +797,10 @@
     <div class="footer-inner" style="max-width: 1280px; margin: 0 auto; padding: 1.125rem 1.5rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem;">
 
       <!-- LEFT: Copyright -->
-      <p style="font-family: 'DM Sans', sans-serif; font-size: 0.8125rem; color: var(--text-faint); margin: 0; line-height: 1.6;">
-        &copy; {{ now.year if now else '2026' }} AI &amp; Tech Daily.<br>All rights reserved.
-      </p>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <img src="/static/signal-animated.svg" alt="logo" style="width:50px;height:50px;flex-shrink:0;">
+        <span style="font-family:'DM Sans',sans-serif; font-size:0.8125rem; color:var(--text-faint); white-space:nowrap;">&copy; {{ now.year if now else '2026' }} &middot; AI &amp; Tech Daily. All rights reserved.</span>
+      </div>
 
       <!-- CENTER: Subscribe form -->
       <div class="footer-subscribe">

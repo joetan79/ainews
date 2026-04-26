@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="512" height="512">
+  <circle cx="100" cy="100" r="92" fill="#FBF9F4"/>
+  <circle cx="100" cy="100" r="72" fill="none" stroke="#B8A6E0" stroke-width="3" stroke-dasharray="3 5" opacity="0.8">
+    <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="12s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="100" cy="100" r="52" fill="none" stroke="#9FC2EC" stroke-width="4">
+    <animateTransform attributeName="transform" type="rotate" from="360 100 100" to="0 100 100" dur="8s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="100" cy="100" r="28" fill="#FFFFFF" stroke="#2A2F3A" stroke-width="4"/>
+  <text x="100" y="108" text-anchor="middle" font-family="'Space Grotesk', sans-serif" font-weight="700" font-size="22" fill="#2A2F3A" letter-spacing="-1">ab</text>
+  <circle cx="100" cy="100" r="4" fill="#7FC9A4">
+    <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="r" values="4;8;4" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>
