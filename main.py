@@ -45,6 +45,11 @@ load_dotenv()
 API_KEY = os.getenv("WEBSITE_API_KEY", "changeme")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
 
+BLOCKED_IMAGE_DOMAINS = frozenset({
+    'bloomberg.com', 'reuters.com', 'wsj.com', 'ft.com',
+    'nytimes.com', 'economist.com', 'businessinsider.com', 'zdnet.com',
+})
+
 security = HTTPBasic()
 
 
@@ -189,10 +194,17 @@ def article_detail(article_id: int, request: Request, db: Session = Depends(get_
         .limit(3)
         .all()
     )
+    # Null out image_url for blocked or known-dead sources so template renders branded fallback
+    image_url = article.image_url
+    if image_url:
+        src_domain = (article.source_domain or '').lower()
+        if src_domain in BLOCKED_IMAGE_DOMAINS or any(b in image_url for b in BLOCKED_IMAGE_DOMAINS):
+            image_url = None
     return templates.TemplateResponse(
         "article.html", {
             "request": request,
             "article": article,
+            "image_url": image_url,
             "related_articles": related_articles,
             **tpl_globals(),
         }
