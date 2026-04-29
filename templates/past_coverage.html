@@ -53,8 +53,8 @@
                 alt="{{ article.title }}"
                 referrerpolicy="no-referrer"
                 loading="lazy"
-                onerror="handleImgError(this, '{{ domain }}', '{{ icon }}')"
-                onload="if(this.naturalWidth===0){handleImgError(this,'{{ domain }}','{{ icon }}');}"
+                onerror="this.onerror=null; handleImgError(this, '{{ domain }}', '{{ icon }}')"
+                onload="if(this.naturalWidth < 10){handleImgError(this,'{{ domain }}','{{ icon }}');}"
               >
             {% elif is_blocked %}
               {% set card_variant = (article.id % 6) + 1 %}

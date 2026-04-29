@@ -67,8 +67,8 @@
             alt="{{ article.title }}"
             referrerpolicy="no-referrer"
             loading="eager"
-            onerror="this.style.display='none';this.nextElementSibling.style.display='';"
-            onload="if(this.naturalWidth===0){this.style.display='none';this.nextElementSibling.style.display='';}"
+            onerror="this.onerror=null; this.style.display='none';this.nextElementSibling.style.display='';"
+            onload="if(this.naturalWidth < 10){this.style.display='none';this.nextElementSibling.style.display='';}"
           >
           <!-- Pre-rendered branded fallback — hidden until img onerror reveals it -->
           <div class="article-hero-img source-card source-card--{{ card_variant }}" style="display:none;">

@@ -102,8 +102,8 @@
                 alt="{{ featured.title }}"
                 referrerpolicy="no-referrer"
                 loading="lazy"
-                onerror="handleImgError(this, '{{ featured_domain }}', '{{ featured_icon }}')"
-                onload="if(this.naturalWidth===0){handleImgError(this,'{{ featured_domain }}','{{ featured_icon }}');}"
+                onerror="this.onerror=null; handleImgError(this, '{{ featured_domain }}', '{{ featured_icon }}')"
+                onload="if(this.naturalWidth < 10){handleImgError(this,'{{ featured_domain }}','{{ featured_icon }}');}"
               >
             {% elif featured_is_blocked %}
               {% set card_variant = (featured.id % 6) + 1 %}
@@ -189,8 +189,8 @@
                   alt="{{ article.title }}"
                   referrerpolicy="no-referrer"
                   loading="lazy"
-                  onerror="handleImgError(this, '{{ domain }}', '{{ icon }}')"
-                  onload="if(this.naturalWidth===0){handleImgError(this,'{{ domain }}','{{ icon }}');}"
+                  onerror="this.onerror=null; handleImgError(this, '{{ domain }}', '{{ icon }}')"
+                  onload="if(this.naturalWidth < 10){handleImgError(this,'{{ domain }}','{{ icon }}');}"
                 >
               {% elif is_blocked %}
                 {% set card_variant = (article.id % 6) + 1 %}
@@ -275,8 +275,8 @@
                   alt="{{ article.title }}"
                   referrerpolicy="no-referrer"
                   loading="lazy"
-                  onerror="handleImgError(this, '{{ domain }}', '{{ icon }}')"
-                  onload="if(this.naturalWidth===0){handleImgError(this,'{{ domain }}','{{ icon }}');}"
+                  onerror="this.onerror=null; handleImgError(this, '{{ domain }}', '{{ icon }}')"
+                  onload="if(this.naturalWidth < 10){handleImgError(this,'{{ domain }}','{{ icon }}');}"
                 >
               {% elif is_blocked %}
                 {% set card_variant = (article.id % 6) + 1 %}
