@@ -23,16 +23,18 @@ body {
 
 .article-image-wrap {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: 0;
+  padding-bottom: 56.25%; /* 9/16 — definite height regardless of flex/block context */
   overflow: hidden;
   border-radius: 8px 8px 0 0;
   background: var(--image-bg, #1a1a2e);
   position: relative;
   flex-shrink: 0;
-  /* Remove display:flex — let aspect-ratio control height */
 }
 
 .article-thumb {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -57,13 +59,10 @@ body {
 }
 
 .article-thumb--fallback {
-  width: 100%;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #060B16 0%, #0A1525 60%, #060E1C 100%);
-  position: relative;
   overflow: hidden;
 }
 .article-thumb--fallback::before {
@@ -93,13 +92,10 @@ body {
 }
 
 .article-thumb--icon {
-  width: 100%;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--card-bg, #0f0f1a) 0%, var(--accent-dim, #1a1a3e) 100%);
-  position: relative;
 }
 
 .favicon-img {
@@ -160,13 +156,14 @@ body {
 }
 
 .article-hero-img--fallback {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #060B16 0%, #0A1525 60%, #060E1C 100%);
   opacity: 1;
   animation: none;
-  position: relative;
   overflow: hidden;
 }
 .article-hero-img--fallback::before {
@@ -230,22 +227,7 @@ body {
 [data-theme="light"] .article-hero-img--icon {
   background: linear-gradient(135deg, #e8e8f0 0%, #d8d8ee 100%);
 }
-[data-theme="light"] .article-thumb--fallback,
-[data-theme="light"] .article-hero-img--fallback {
-  background: linear-gradient(135deg, #F0F9FF 0%, #E8F4FD 60%, #F0F9FF 100%);
-}
-[data-theme="light"] .article-thumb--fallback::before,
-[data-theme="light"] .article-hero-img--fallback::before {
-  background-image: radial-gradient(circle, rgba(8,145,178,0.45) 1px, transparent 1px);
-}
-[data-theme="light"] .article-thumb--fallback::after,
-[data-theme="light"] .article-hero-img--fallback::after {
-  background: radial-gradient(ellipse at center, rgba(8,145,178,0.32) 0%, transparent 60%);
-}
-[data-theme="light"] .article-thumb--fallback .sc-cat,
-[data-theme="light"] .article-hero-img--fallback .sc-cat {
-  color: rgba(8,145,178,0.5);
-}
+/* fallback card background is always dark — no light-mode override */
 
 [data-theme="light"] .category-icon,
 [data-theme="light"] .category-icon--hero {
@@ -331,12 +313,9 @@ body {
 /* ── 6 Rotating Branded Source Cards ─────────────────────── */
 
 .source-card {
-  width: 100%;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
   overflow: hidden;
 }
 
@@ -594,17 +573,12 @@ body {
 }
 
 /* ── Light Mode: Branded Source Cards ────────────────────── */
+/* Source card backgrounds are always dark — no light-mode background override */
 [data-theme="light"] .sc-src {
   color: rgba(8,145,178,0.85);
 }
-[data-theme="light"] .sc-cat {
-  color: rgba(15,23,42,0.45);
-}
 
 /* Card 1: Pulse Grid — light */
-[data-theme="light"] .source-card--1 {
-  background: #F8FAFC;
-}
 [data-theme="light"] .source-card--1::before {
   background-image:
     linear-gradient(rgba(8,145,178,0.30) 1px, transparent 1px),
@@ -616,9 +590,6 @@ body {
 }
 
 /* Card 2: Scan Frame — light */
-[data-theme="light"] .source-card--2 {
-  background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
-}
 [data-theme="light"] .source-card--2::before {
   background: linear-gradient(90deg, transparent 0%, rgba(8,145,178,0.92) 50%, transparent 100%);
 }
@@ -628,9 +599,6 @@ body {
 }
 
 /* Card 3: Topology — light */
-[data-theme="light"] .source-card--3 {
-  background: #EFF6FF;
-}
 [data-theme="light"] .source-card--3::before {
   background-image: radial-gradient(circle at 30% 40%, rgba(8,145,178,0.26) 0%, transparent 60%),
                     radial-gradient(circle at 70% 60%, rgba(8,145,178,0.22) 0%, transparent 50%);
@@ -646,9 +614,6 @@ body {
 }
 
 /* Card 4: Waveform — light */
-[data-theme="light"] .source-card--4 {
-  background: #F8FAFC;
-}
 [data-theme="light"] .source-card--4::before {
   background: repeating-linear-gradient(
     90deg,
@@ -670,9 +635,6 @@ body {
 }
 
 /* Card 5: Halftone — light */
-[data-theme="light"] .source-card--5 {
-  background: #F8FAFC;
-}
 [data-theme="light"] .source-card--5::before {
   background-image: radial-gradient(circle, rgba(8,145,178,0.58) 1px, transparent 1px);
   background-size: 14px 14px;
@@ -682,9 +644,6 @@ body {
 }
 
 /* Card 6: ABbot Circuit — light */
-[data-theme="light"] .source-card--6 {
-  background: #F8FAFC;
-}
 [data-theme="light"] .source-card--6::before {
   background-image:
     linear-gradient(90deg, transparent 0%, transparent 15%, rgba(8,145,178,0.44) 15%, rgba(8,145,178,0.44) 16%, transparent 16%),

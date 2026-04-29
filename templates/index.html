@@ -92,7 +92,7 @@
           <!-- Article thumbnail with 3-tier fallback -->
           {% set featured_icon = {'AI Models':'🤖','Business':'💼','Policy':'⚖️','Research':'🔬','Robotics':'🦾','Hardware':'💡','Crypto':'₿'}.get(featured.category, '🌐') %}
           {% set featured_domain = featured.source_domain or '' %}
-          {% set blocked_domains = ['bloomberg.com', 'reuters.com', 'wsj.com', 'ft.com', 'nytimes.com', 'economist.com', 'businessinsider.com'] %}
+          {% set blocked_domains = ['bloomberg.com', 'reuters.com', 'wsj.com', 'ft.com', 'nytimes.com', 'economist.com', 'businessinsider.com', 'zdnet.com'] %}
           {% set featured_is_blocked = featured_domain and featured_domain | lower in blocked_domains %}
           <div class="article-image-wrap" style="border-radius:1.125rem 1.125rem 0 0; position:relative;">
             {% if featured.image_url %}
@@ -103,6 +103,7 @@
                 referrerpolicy="no-referrer"
                 loading="lazy"
                 onerror="handleImgError(this, '{{ featured_domain }}', '{{ featured_icon }}')"
+                onload="if(this.naturalWidth===0){handleImgError(this,'{{ featured_domain }}','{{ featured_icon }}');}"
               >
             {% elif featured_is_blocked %}
               {% set card_variant = (featured.id % 6) + 1 %}
@@ -178,7 +179,7 @@
           {% for article in articles[1:] %}
           {% set icon = {'AI Models':'🤖','Business':'💼','Policy':'⚖️','Research':'🔬','Robotics':'🦾','Hardware':'💡','Crypto':'₿'}.get(article.category, '🌐') %}
           {% set domain = article.source_domain or '' %}
-          {% set is_blocked = domain and domain | lower in ['bloomberg.com', 'reuters.com', 'wsj.com', 'ft.com', 'nytimes.com', 'economist.com', 'businessinsider.com'] %}
+          {% set is_blocked = domain and domain | lower in ['bloomberg.com', 'reuters.com', 'wsj.com', 'ft.com', 'nytimes.com', 'economist.com', 'businessinsider.com', 'zdnet.com'] %}
           <article class="news-card article-card" style="background:var(--bg-card); border:1px solid var(--border); border-radius:1rem; display:flex; flex-direction:column; overflow:hidden;">
             <div class="article-image-wrap">
               {% if article.image_url %}
@@ -189,6 +190,7 @@
                   referrerpolicy="no-referrer"
                   loading="lazy"
                   onerror="handleImgError(this, '{{ domain }}', '{{ icon }}')"
+                  onload="if(this.naturalWidth===0){handleImgError(this,'{{ domain }}','{{ icon }}');}"
                 >
               {% elif is_blocked %}
                 {% set card_variant = (article.id % 6) + 1 %}
@@ -263,7 +265,7 @@
           {% for article in articles %}
           {% set icon = {'AI Models':'🤖','Business':'💼','Policy':'⚖️','Research':'🔬','Robotics':'🦾','Hardware':'💡','Crypto':'₿'}.get(article.category, '🌐') %}
           {% set domain = article.source_domain or '' %}
-          {% set is_blocked = domain and domain | lower in ['bloomberg.com', 'reuters.com', 'wsj.com', 'ft.com', 'nytimes.com', 'economist.com', 'businessinsider.com'] %}
+          {% set is_blocked = domain and domain | lower in ['bloomberg.com', 'reuters.com', 'wsj.com', 'ft.com', 'nytimes.com', 'economist.com', 'businessinsider.com', 'zdnet.com'] %}
           <article class="news-card article-card" style="background:var(--bg-card); border:1px solid var(--border); border-radius:1rem; display:flex; flex-direction:column; overflow:hidden;">
             <div class="article-image-wrap">
               {% if article.image_url %}
@@ -274,6 +276,7 @@
                   referrerpolicy="no-referrer"
                   loading="lazy"
                   onerror="handleImgError(this, '{{ domain }}', '{{ icon }}')"
+                  onload="if(this.naturalWidth===0){handleImgError(this,'{{ domain }}','{{ icon }}');}"
                 >
               {% elif is_blocked %}
                 {% set card_variant = (article.id % 6) + 1 %}

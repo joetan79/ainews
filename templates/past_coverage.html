@@ -43,7 +43,7 @@
         {% for article in articles %}
         {% set icon = {'AI Models':'🤖','Business':'💼','Policy':'⚖️','Research':'🔬','Robotics':'🦾','Hardware':'💡','Crypto':'₿'}.get(article.category, '🌐') %}
         {% set domain = article.source_domain or '' %}
-        {% set is_blocked = domain and domain | lower in ['bloomberg.com', 'reuters.com', 'wsj.com', 'ft.com', 'nytimes.com', 'economist.com', 'businessinsider.com'] %}
+        {% set is_blocked = domain and domain | lower in ['bloomberg.com', 'reuters.com', 'wsj.com', 'ft.com', 'nytimes.com', 'economist.com', 'businessinsider.com', 'zdnet.com'] %}
         <article class="news-card article-card" style="background:var(--bg-card); border:1px solid var(--border); border-radius:1rem; display:flex; flex-direction:column; overflow:hidden;">
           <div class="article-image-wrap">
             {% if article.image_url %}
@@ -54,6 +54,7 @@
                 referrerpolicy="no-referrer"
                 loading="lazy"
                 onerror="handleImgError(this, '{{ domain }}', '{{ icon }}')"
+                onload="if(this.naturalWidth===0){handleImgError(this,'{{ domain }}','{{ icon }}');}"
               >
             {% elif is_blocked %}
               {% set card_variant = (article.id % 6) + 1 %}
@@ -62,16 +63,32 @@
                   <span class="sc-src">{{ domain }}</span>
                   <span class="sc-cat">{{ article.category or 'AI & Tech' }}</span>
                 </div>
+                <svg class="sc-robot sc-robot--{{ card_variant }}" viewBox="0 0 70 100" fill="none" aria-hidden="true">
+                  <g class="sc-robot-antenna-group"><line x1="35" y1="6" x2="35" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="35" cy="3" r="3.5" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.2"/></g>
+                  <g class="sc-robot-head-group"><rect x="12" y="13" width="46" height="34" rx="6" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.08"/><rect class="sc-robot-eye-l" x="19" y="21" width="10" height="10" rx="3" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.25"/><rect class="sc-robot-eye-r" x="41" y="21" width="10" height="10" rx="3" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.25"/><path d="M21 37 Q35 43 49 37" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
+                  <rect x="10" y="50" width="50" height="30" rx="5" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.08"/>
+                  <g class="sc-robot-arm-left"><rect x="1" y="52" width="9" height="22" rx="4" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.08"/></g>
+                  <g class="sc-robot-arm-right"><rect x="60" y="52" width="9" height="22" rx="4" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.08"/></g>
+                  <rect x="17" y="80" width="13" height="14" rx="4" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.08"/>
+                  <rect x="40" y="80" width="13" height="14" rx="4" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.08"/>
+                </svg>
               </div>
             {% elif domain %}
               <div class="article-thumb article-thumb--fallback">
-                <img
-                  class="favicon-img"
-                  src="https://www.google.com/s2/favicons?domain={{ domain }}&sz=64"
-                  alt="{{ domain }}"
-                  referrerpolicy="no-referrer"
-                  onerror="handleFaviconError(this, '{{ icon }}')"
-                >
+                <div class="sc-inner">
+                  <img class="favicon-img favicon-img--card" src="https://www.google.com/s2/favicons?domain={{ domain }}&sz=64" alt="{{ domain }}" referrerpolicy="no-referrer" onerror="this.style.display='none'">
+                  <span class="sc-src">{{ domain }}</span>
+                  <span class="sc-cat">{{ article.category or 'AI & Tech' }}</span>
+                </div>
+                <svg class="sc-robot sc-robot--fallback" viewBox="0 0 70 100" fill="none" aria-hidden="true">
+                  <g class="sc-robot-antenna-group"><line x1="35" y1="6" x2="35" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="35" cy="3" r="3.5" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.2"/></g>
+                  <g class="sc-robot-head-group"><rect x="12" y="13" width="46" height="34" rx="6" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.08"/><rect class="sc-robot-eye-l" x="19" y="21" width="10" height="10" rx="3" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.25"/><rect class="sc-robot-eye-r" x="41" y="21" width="10" height="10" rx="3" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.25"/><path d="M21 37 Q35 43 49 37" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
+                  <rect x="10" y="50" width="50" height="30" rx="5" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.08"/>
+                  <g class="sc-robot-arm-left"><rect x="1" y="52" width="9" height="22" rx="4" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.08"/></g>
+                  <g class="sc-robot-arm-right"><rect x="60" y="52" width="9" height="22" rx="4" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.08"/></g>
+                  <rect x="17" y="80" width="13" height="14" rx="4" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.08"/>
+                  <rect x="40" y="80" width="13" height="14" rx="4" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.08"/>
+                </svg>
               </div>
             {% else %}
               <div class="article-thumb article-thumb--icon">

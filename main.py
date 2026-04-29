@@ -112,6 +112,21 @@ def proxy_image_url(url: Optional[str]) -> Optional[str]:
     return f"https://images.weserv.nl/?url={quote(url, safe='')}&w=800&q=85"
 
 
+def validate_image_url(image_url: Optional[str], source_domain: Optional[str]) -> Optional[str]:
+    """Return None if image should not be attempted in the browser.
+
+    Blocks: empty URLs, blocked/paywalled domains, any URL not routed
+    through the weserv.nl proxy (unexpected format = unreliable).
+    """
+    if not image_url:
+        return None
+    if (source_domain or '').lower() in BLOCKED_IMAGE_DOMAINS:
+        return None
+    if not image_url.startswith('https://images.weserv.nl'):
+        return None
+    return image_url
+
+
 def extract_og_image(url: str) -> Optional[str]:
     try:
         headers = {"User-Agent": "Mozilla/5.0 (compatible; ABbot/1.0; +https://abai.cloud)"}
@@ -167,6 +182,8 @@ def homepage(request: Request, db: Session = Depends(get_db)):
         .limit(30)
         .all()
     )
+    for article in articles:
+        article.image_url = validate_image_url(article.image_url, article.source_domain)
     grouped = group_articles_by_date(articles)
     subscriber_count = db.query(Subscriber).filter(Subscriber.is_active == True).count()
     return templates.TemplateResponse(
@@ -194,12 +211,7 @@ def article_detail(article_id: int, request: Request, db: Session = Depends(get_
         .limit(3)
         .all()
     )
-    # Null out image_url for blocked or known-dead sources so template renders branded fallback
-    image_url = article.image_url
-    if image_url:
-        src_domain = (article.source_domain or '').lower()
-        if src_domain in BLOCKED_IMAGE_DOMAINS or any(b in image_url for b in BLOCKED_IMAGE_DOMAINS):
-            image_url = None
+    image_url = validate_image_url(article.image_url, article.source_domain)
     return templates.TemplateResponse(
         "article.html", {
             "request": request,
@@ -410,6 +422,8 @@ def past_coverage(request: Request, db: Session = Depends(get_db)):
         .order_by(NewsArticle.published_date.desc(), NewsArticle.id.desc())
         .all()
     )
+    for article in articles:
+        article.image_url = validate_image_url(article.image_url, article.source_domain)
     grouped = group_articles_by_date(articles)
     return templates.TemplateResponse(
         "past_coverage.html", {
