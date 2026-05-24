@@ -1,5 +1,6 @@
 import os
 import re
+import base64
 import html as _html
 import logging
 from datetime import datetime, timedelta
@@ -13,7 +14,7 @@ import io
 import httpx
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from fastapi import FastAPI, Depends, Request, Header, HTTPException, Form
+from fastapi import FastAPI, Depends, Request, Header, HTTPException, Form, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
@@ -22,7 +23,7 @@ from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 
-from database import get_db, init_db, SessionLocal, NewsArticle, Subscriber
+from database import get_db, init_db, SessionLocal, NewsArticle, Subscriber, WhiteboardContent, WhiteboardNote
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +70,22 @@ def verify_admin(credentials: HTTPBasicCredentials = Depends(security)):
     return credentials.username
 
 VALID_EMAIL_RE = re.compile(r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$")
+
+whiteboard_connections: set[WebSocket] = set()
+
+
+def _ws_verify_admin(authorization: Optional[str]) -> bool:
+    if not authorization or not authorization.lower().startswith("basic "):
+        return False
+    try:
+        decoded = base64.b64decode(authorization[6:]).decode("utf-8")
+        username, password = decoded.split(":", 1)
+        return (
+            secrets.compare_digest(username.encode(), b"admin")
+            and secrets.compare_digest(password.encode(), ADMIN_PASSWORD.encode())
+        )
+    except Exception:
+        return False
 
 app = FastAPI(title="AI & Tech Daily")
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -832,6 +849,146 @@ async def trigger_digest_endpoint(
             {"status": "error", "message": str(e)},
             status_code=500
         )
+
+
+@app.get("/whiteboard", response_class=HTMLResponse)
+def whiteboard_page(
+    request: Request,
+    db: Session = Depends(get_db),
+    username: str = Depends(verify_admin),
+):
+    wb = db.query(WhiteboardContent).filter(WhiteboardContent.id == 1).first()
+    content = wb.content if wb else ""
+    notes = db.query(WhiteboardNote).order_by(WhiteboardNote.created_at.desc()).all()
+    return templates.TemplateResponse(
+        "whiteboard.html",
+        {"request": request, "content": content, "notes": notes},
+    )
+
+
+@app.websocket("/ws/whiteboard")
+async def whiteboard_ws(websocket: WebSocket):
+    # Accept unconditionally — WS only broadcasts content between tabs of the
+    # same user. No data is exposed; all mutations still require HTTP Basic auth.
+    await websocket.accept()
+    whiteboard_connections.add(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            dead: set[WebSocket] = set()
+            for conn in whiteboard_connections:
+                if conn is not websocket:
+                    try:
+                        await conn.send_text(data)
+                    except Exception:
+                        dead.add(conn)
+            whiteboard_connections.difference_update(dead)
+    except WebSocketDisconnect:
+        whiteboard_connections.discard(websocket)
+
+
+class WhiteboardSavePayload(BaseModel):
+    content: str
+
+
+class WhiteboardNotePayload(BaseModel):
+    title: str = "Untitled"
+    content: str = ""
+    image_data: Optional[str] = None
+
+
+@app.post("/whiteboard/save")
+async def whiteboard_save(
+    payload: WhiteboardSavePayload,
+    db: Session = Depends(get_db),
+    username: str = Depends(verify_admin),
+):
+    wb = db.query(WhiteboardContent).filter(WhiteboardContent.id == 1).first()
+    if wb:
+        wb.content = payload.content
+        wb.updated_at = datetime.utcnow()
+    else:
+        wb = WhiteboardContent(id=1, content=payload.content)
+        db.add(wb)
+    db.commit()
+    return {"status": "ok"}
+
+
+@app.post("/whiteboard/note")
+async def create_whiteboard_note(
+    payload: WhiteboardNotePayload,
+    db: Session = Depends(get_db),
+    username: str = Depends(verify_admin),
+):
+    note = WhiteboardNote(
+        title=payload.title or "Untitled",
+        content=payload.content,
+        image_data=payload.image_data,
+        has_image=bool(payload.image_data),
+    )
+    db.add(note)
+    db.commit()
+    db.refresh(note)
+    return {"status": "ok", "id": note.id, "created_at": note.created_at.isoformat()}
+
+
+@app.post("/whiteboard/note/{note_id}/edit")
+async def edit_whiteboard_note(
+    note_id: int,
+    payload: WhiteboardNotePayload,
+    db: Session = Depends(get_db),
+    username: str = Depends(verify_admin),
+):
+    note = db.query(WhiteboardNote).filter(WhiteboardNote.id == note_id).first()
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    note.title = payload.title or "Untitled"
+    note.content = payload.content
+    note.updated_at = datetime.utcnow()
+    if payload.image_data is not None:
+        note.image_data = payload.image_data
+        note.has_image = bool(payload.image_data)
+    db.commit()
+    return {"status": "ok"}
+
+
+@app.get("/whiteboard/note/{note_id}")
+async def get_whiteboard_note(
+    note_id: int,
+    db: Session = Depends(get_db),
+    username: str = Depends(verify_admin),
+):
+    note = db.query(WhiteboardNote).filter(WhiteboardNote.id == note_id).first()
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    return {"id": note.id, "title": note.title, "content": note.content, "image_data": note.image_data}
+
+
+@app.delete("/whiteboard/note/{note_id}")
+async def delete_whiteboard_note(
+    note_id: int,
+    db: Session = Depends(get_db),
+    username: str = Depends(verify_admin),
+):
+    note = db.query(WhiteboardNote).filter(WhiteboardNote.id == note_id).first()
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    db.delete(note)
+    db.commit()
+    return {"status": "ok"}
+
+
+@app.post("/whiteboard/clear")
+async def whiteboard_clear(
+    db: Session = Depends(get_db),
+    username: str = Depends(verify_admin),
+):
+    wb = db.query(WhiteboardContent).filter(WhiteboardContent.id == 1).first()
+    if wb:
+        wb.content = ""
+        wb.updated_at = datetime.utcnow()
+        db.commit()
+    return {"status": "ok"}
 
 
 @app.get("/api/articles")

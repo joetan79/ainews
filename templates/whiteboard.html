@@ -1,0 +1,549 @@
+{% extends "base.html" %}
+{% block title %}Whiteboard — AI & Tech Daily{% endblock %}
+
+{% block content %}
+<div class="wb-layout">
+
+  <!-- ── Left: editor ──────────────────────────────────────── -->
+  <div class="wb-main">
+
+    <!-- Toolbar -->
+    <div class="wb-toolbar">
+      <span class="wb-title">Whiteboard</span>
+      <div class="wb-toolbar-actions">
+        <button onclick="toggleBg()" id="bg-toggle-btn" class="wb-btn">Show Grid</button>
+        <button onclick="handleSave()" id="save-note-btn" class="wb-btn wb-btn-accent">Save as Note</button>
+        <button onclick="clearBoard()" class="wb-btn wb-btn-danger">Clear</button>
+      </div>
+      <!-- Editing indicator — visible when an existing note is loaded -->
+      <div id="editing-indicator" class="wb-editing-indicator" style="display:none;">
+        <span class="wb-editing-label" id="editing-label"></span>
+        <button onclick="detachNote()" class="wb-editing-close" title="Detach — next save creates a new note">×</button>
+      </div>
+      <span id="wb-status" class="wb-status"></span>
+    </div>
+
+    <!-- Title modal (new note / rename) -->
+    <div id="wb-modal" class="wb-modal" style="display:none;" role="dialog">
+      <p class="wb-modal-heading" id="modal-heading">Save as Note</p>
+      <label class="wb-modal-label" for="modal-title-input">Title</label>
+      <input
+        type="text"
+        id="modal-title-input"
+        class="wb-modal-input"
+        maxlength="50"
+        placeholder="Enter title…"
+        onkeydown="handleModalKey(event)"
+      >
+      <div class="wb-modal-actions">
+        <button onclick="confirmModal()" class="wb-btn wb-btn-accent">Confirm</button>
+        <button onclick="closeModal()" class="wb-btn">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Contenteditable whiteboard — translate-isolated -->
+    <div
+      id="whiteboard"
+      class="wb-editor notranslate translate-ignore"
+      contenteditable="true"
+      spellcheck="false"
+      translate="no"
+      data-placeholder="Start typing… paste images too"
+    ></div>
+
+  </div>
+
+  <!-- ── Right: notes panel — translate-isolated ───────────── -->
+  <div class="wb-sidebar" translate="no">
+    <div class="wb-sidebar-header">
+      <span>Saved Notes</span>
+      <span class="wb-note-count" id="note-count">{{ notes | length }}</span>
+    </div>
+
+    <div class="wb-notes-list notranslate translate-ignore" id="notes-list" translate="no">
+      {% for note in notes %}
+      <div class="wb-note" id="note-{{ note.id }}" title="Double-click to edit in whiteboard">
+        <div class="wb-note-header">
+          <div class="wb-note-info">
+            <span class="wb-note-title">{{ note.title | e }}</span>
+            <span class="wb-note-meta">{{ note.created_at.strftime('%d %b %H:%M') }}</span>
+          </div>
+          <div class="wb-note-actions">
+            <button class="wb-btn-icon" title="Rename"
+              onclick="openRenameModal({{ note.id }}); event.stopPropagation();">✏️</button>
+            <button class="wb-btn-icon" title="Delete"
+              onclick="deleteNote({{ note.id }}); event.stopPropagation();">🗑️</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% if not notes %}
+      <p class="wb-empty">No saved notes yet.<br>Write something and click "Save as Note".</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // ── Note data registry (populated from server at page load) ─
+  const noteData = {};
+  {% for note in notes %}
+  noteData[{{ note.id }}] = {
+    title:     {{ note.title | tojson }},
+    content:   {{ note.content | tojson }},
+    imageData: {{ (note.image_data or '') | tojson }},
+  };
+  {% endfor %}
+
+  // ── State ────────────────────────────────────────────────────
+  let currentNoteId    = null;
+  let currentNoteTitle = null;
+
+  // Restore session state across page reloads via localStorage
+  (function () {
+    const id    = parseInt(localStorage.getItem('wb_currentNoteId') || '');
+    const title = localStorage.getItem('wb_currentNoteTitle') || '';
+    if (id && noteData[id]) {
+      currentNoteId    = id;
+      currentNoteTitle = title;
+    }
+  })();
+
+  // ── DOM refs ─────────────────────────────────────────────────
+  const wb   = document.getElementById('whiteboard');
+  const stat = document.getElementById('wb-status');
+
+  // Load persisted whiteboard HTML
+  wb.innerHTML = {{ content | tojson }};
+
+  updateSaveButton();
+  updateEditingIndicator();
+
+  // ── WebSocket (sync across tabs) ──────────────────────────────
+  let ws, _wsRetries = 0;
+  function connectWS() {
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    ws = new WebSocket(`${proto}://${location.host}/ws/whiteboard`);
+    ws.onopen = () => { _wsRetries = 0; };
+    ws.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.type === 'content' && document.activeElement !== wb)
+          wb.innerHTML = msg.data;
+      } catch (_) {}
+    };
+    // Exponential backoff: 1 s, 2 s, 4 s … capped at 30 s
+    ws.onclose = () => {
+      const delay = Math.min(30000, 1000 * Math.pow(2, _wsRetries++));
+      setTimeout(connectWS, delay);
+    };
+    ws.onerror = () => {};
+  }
+  connectWS();
+
+  // ── Autosave (500 ms debounce) ────────────────────────────────
+  let saveTimer;
+  let dirty = false;
+
+  wb.addEventListener('input', () => {
+    dirty = true;
+    stat.textContent = 'Editing…';
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(autosave, 500);
+  });
+
+  async function autosave() {
+    const content = wb.innerHTML;
+    if (ws && ws.readyState === WebSocket.OPEN)
+      ws.send(JSON.stringify({ type: 'content', data: content }));
+    try {
+      const r = await fetch('/whiteboard/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content }),
+      });
+      if (r.ok) {
+        dirty = false;
+        stat.textContent = 'Saved';
+        setTimeout(() => { if (!dirty) stat.textContent = ''; }, 2000);
+      }
+    } catch (_) { stat.textContent = 'Save failed'; }
+  }
+
+  // ── Image paste ───────────────────────────────────────────────
+  wb.addEventListener('paste', (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = document.createElement('img');
+          img.src = ev.target.result;
+          img.style.cssText = 'max-width:100%;border-radius:6px;margin:4px 0;display:block;';
+          const sel = window.getSelection();
+          if (sel && sel.rangeCount) {
+            const range = sel.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(img);
+            range.setStartAfter(img);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+          } else {
+            wb.appendChild(img);
+          }
+          wb.dispatchEvent(new Event('input'));
+        };
+        reader.readAsDataURL(item.getAsFile());
+        return;
+      }
+    }
+    // Strip rich formatting on plain-text paste
+    e.preventDefault();
+    document.execCommand('insertText', false, e.clipboardData.getData('text/plain'));
+  });
+
+  // ── Background grid toggle ────────────────────────────────────
+  let bgOn = false;
+  function toggleBg() {
+    bgOn = !bgOn;
+    wb.classList.toggle('wb-editor--grid', bgOn);
+    document.getElementById('bg-toggle-btn').textContent = bgOn ? 'Hide Grid' : 'Show Grid';
+  }
+
+  // ── Clear board ───────────────────────────────────────────────
+  async function clearBoard() {
+    if (!confirm('Clear the whiteboard?')) return;
+    wb.innerHTML = '';
+    detachNote();
+    await fetch('/whiteboard/clear', { method: 'POST' });
+    if (ws && ws.readyState === WebSocket.OPEN)
+      ws.send(JSON.stringify({ type: 'content', data: '' }));
+    stat.textContent = 'Cleared';
+    setTimeout(() => stat.textContent = '', 2000);
+  }
+
+  // ── Note state management ─────────────────────────────────────
+  function setCurrentNote(id, title) {
+    currentNoteId    = id;
+    currentNoteTitle = title;
+    if (id) {
+      localStorage.setItem('wb_currentNoteId',    String(id));
+      localStorage.setItem('wb_currentNoteTitle', title || '');
+    } else {
+      localStorage.removeItem('wb_currentNoteId');
+      localStorage.removeItem('wb_currentNoteTitle');
+    }
+    updateSaveButton();
+    updateEditingIndicator();
+  }
+
+  function detachNote() {
+    setCurrentNote(null, null);
+  }
+
+  function updateSaveButton() {
+    document.getElementById('save-note-btn').textContent =
+      currentNoteId ? 'Save' : 'Save as Note';
+  }
+
+  function updateEditingIndicator() {
+    const el  = document.getElementById('editing-indicator');
+    const lbl = document.getElementById('editing-label');
+    if (currentNoteId) {
+      lbl.textContent  = `Editing: ${currentNoteTitle}`;
+      el.style.display = 'flex';
+    } else {
+      el.style.display = 'none';
+    }
+  }
+
+  // ── Load a note into the whiteboard ──────────────────────────
+  async function loadNoteToWhiteboard(id) {
+    flashCard(id);
+
+    // Always fetch fresh data so edits from other devices are picked up
+    let data = noteData[id];
+    try {
+      const r = await fetch(`/whiteboard/note/${id}`);
+      if (r.ok) {
+        const fresh = await r.json();
+        data = { title: fresh.title, content: fresh.content, imageData: fresh.image_data || '' };
+        noteData[id] = data;
+        const titleEl = document.querySelector(`#note-${id} .wb-note-title`);
+        if (titleEl) titleEl.textContent = fresh.title;
+      }
+    } catch (_) {}
+
+    if (!data) return;
+
+    // Reconstruct whiteboard from note content
+    wb.innerHTML = '';
+    if (data.imageData) {
+      const img = document.createElement('img');
+      img.src = data.imageData;
+      img.style.cssText = 'max-width:100%;border-radius:6px;margin:4px 0;display:block;';
+      wb.appendChild(img);
+    }
+    if (data.content) {
+      const div = document.createElement('div');
+      div.style.whiteSpace = 'pre-wrap';
+      div.textContent = data.content;
+      wb.appendChild(div);
+    }
+
+    setCurrentNote(id, data.title);
+
+    wb.scrollTop = 0;
+    document.querySelector('.wb-layout').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    wb.dispatchEvent(new Event('input'));
+  }
+
+  function flashCard(id) {
+    const card = document.getElementById(`note-${id}`);
+    if (!card) return;
+    card.classList.add('wb-note--loading');
+    setTimeout(() => card.classList.remove('wb-note--loading'), 700);
+  }
+
+  // ── Event listeners: double-click + long-press ────────────────
+  function attachCardListeners(card, id) {
+    // Desktop: double-click on card body
+    card.addEventListener('dblclick', (e) => {
+      if (e.target.closest('.wb-note-actions')) return;
+      loadNoteToWhiteboard(id);
+    });
+
+    // Mobile: 600 ms long-press
+    let pressTimer;
+    card.addEventListener('touchstart', (e) => {
+      if (e.target.closest('.wb-note-actions')) return;
+      pressTimer = setTimeout(() => loadNoteToWhiteboard(id), 600);
+    }, { passive: true });
+    const cancelPress = () => clearTimeout(pressTimer);
+    card.addEventListener('touchend',    cancelPress);
+    card.addEventListener('touchmove',   cancelPress);
+    card.addEventListener('touchcancel', cancelPress);
+  }
+
+  // Wire up all server-rendered cards
+  document.querySelectorAll('.wb-note').forEach(card => {
+    attachCardListeners(card, parseInt(card.id.replace('note-', '')));
+  });
+
+  // ── Smart Save ────────────────────────────────────────────────
+  async function handleSave() {
+    if (currentNoteId) {
+      await doUpdateNote(currentNoteId, currentNoteTitle);
+    } else {
+      openSaveModal();
+    }
+  }
+
+  async function doUpdateNote(id, title) {
+    const btn       = document.getElementById('save-note-btn');
+    const content   = wb.innerText.trim();
+    const imgEl     = wb.querySelector('img');
+    const imageData = imgEl ? imgEl.src : null;
+
+    // Flash the button green
+    btn.disabled = true;
+    btn.textContent = '✓ Saved';
+    btn.classList.add('wb-btn-saved');
+
+    try {
+      const r = await fetch(`/whiteboard/note/${id}/edit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, image_data: imageData }),
+      });
+      if (r.ok && noteData[id]) {
+        noteData[id].content = content;
+        if (imageData !== null) noteData[id].imageData = imageData;
+      }
+    } catch (_) {}
+
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = 'Save';
+      btn.classList.remove('wb-btn-saved');
+    }, 1500);
+  }
+
+  // ── Modal (new note title / rename) ──────────────────────────
+  let _modalMode   = null;   // 'save' | 'rename'
+  let _modalNoteId = null;
+  let _pendingContent   = '';
+  let _pendingImageData = null;
+
+  function openSaveModal() {
+    _modalMode        = 'save';
+    _modalNoteId      = null;
+    _pendingContent   = wb.innerText.trim();
+    const imgEl       = wb.querySelector('img');
+    _pendingImageData = imgEl ? imgEl.src : null;
+
+    if (!_pendingContent && !_pendingImageData) {
+      stat.textContent = 'Nothing to save';
+      setTimeout(() => stat.textContent = '', 2000);
+      return;
+    }
+    document.getElementById('modal-heading').textContent = 'Save as Note';
+    document.getElementById('modal-title-input').value  = '';
+    showModal();
+  }
+
+  function openRenameModal(id) {
+    _modalMode   = 'rename';
+    _modalNoteId = id;
+    document.getElementById('modal-heading').textContent     = 'Rename Note';
+    document.getElementById('modal-title-input').value       = noteData[id]?.title || '';
+    showModal();
+  }
+
+  function showModal() {
+    document.getElementById('wb-modal').style.display = 'block';
+    const inp = document.getElementById('modal-title-input');
+    inp.focus();
+    inp.select();
+  }
+
+  function closeModal() {
+    document.getElementById('wb-modal').style.display = 'none';
+    _modalMode = null;
+  }
+
+  function handleModalKey(e) {
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Enter') { e.preventDefault(); confirmModal(); }
+  }
+
+  // Click outside modal (on the editor) closes it
+  wb.addEventListener('click', () => {
+    if (document.getElementById('wb-modal').style.display !== 'none') closeModal();
+  });
+
+  async function confirmModal() {
+    const title = document.getElementById('modal-title-input').value.trim();
+    if (!title) {
+      const inp = document.getElementById('modal-title-input');
+      inp.focus();
+      inp.style.borderColor = '#EF4444';
+      setTimeout(() => inp.style.borderColor = '', 1200);
+      return;
+    }
+    const mode   = _modalMode;
+    const noteId = _modalNoteId;
+    closeModal();
+    if (mode === 'save') {
+      await doSaveNewNote(title, _pendingContent, _pendingImageData);
+    } else if (mode === 'rename') {
+      await doRenameNote(noteId, title);
+    }
+  }
+
+  // ── Create new note ───────────────────────────────────────────
+  async function doSaveNewNote(title, content, imageData) {
+    try {
+      const r = await fetch('/whiteboard/note', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, image_data: imageData }),
+      });
+      if (r.ok) {
+        const data = await r.json();
+        noteData[data.id] = { title, content, imageData: imageData || '' };
+        prependNoteCard(data.id, title, data.created_at);
+        updateNoteCount(1);
+        stat.textContent = 'Note saved!';
+        setTimeout(() => stat.textContent = '', 2000);
+      }
+    } catch (_) { stat.textContent = 'Save failed'; }
+  }
+
+  // ── Rename note ───────────────────────────────────────────────
+  async function doRenameNote(id, title) {
+    const data = noteData[id] || {};
+    try {
+      const r = await fetch(`/whiteboard/note/${id}/edit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content: data.content || '' }),
+      });
+      if (r.ok) {
+        if (noteData[id]) noteData[id].title = title;
+        const el = document.querySelector(`#note-${id} .wb-note-title`);
+        if (el) el.textContent = title;
+        // Keep editing indicator in sync
+        if (currentNoteId === id) {
+          currentNoteTitle = title;
+          localStorage.setItem('wb_currentNoteTitle', title);
+          updateEditingIndicator();
+        }
+      }
+    } catch (_) {}
+  }
+
+  // ── Prepend a newly-created note card ─────────────────────────
+  function prependNoteCard(id, title, createdAt) {
+    document.querySelector('.wb-empty')?.remove();
+
+    const ts  = new Date(createdAt);
+    const day = String(ts.getDate()).padStart(2, '0');
+    const mon = ts.toLocaleString('en-GB', { month: 'short' });
+    const hm  = ts.toTimeString().slice(0, 5);
+
+    const div = document.createElement('div');
+    div.className = 'wb-note';
+    div.id        = `note-${id}`;
+    div.title     = 'Double-click to edit in whiteboard';
+    div.innerHTML = `
+      <div class="wb-note-header">
+        <div class="wb-note-info">
+          <span class="wb-note-title">${escHtml(title)}</span>
+          <span class="wb-note-meta">${day} ${mon} ${hm}</span>
+        </div>
+        <div class="wb-note-actions">
+          <button class="wb-btn-icon" title="Rename"
+            onclick="openRenameModal(${id}); event.stopPropagation();">✏️</button>
+          <button class="wb-btn-icon" title="Delete"
+            onclick="deleteNote(${id}); event.stopPropagation();">🗑️</button>
+        </div>
+      </div>`;
+    attachCardListeners(div, id);
+    document.getElementById('notes-list').prepend(div);
+  }
+
+  function updateNoteCount(delta) {
+    const el = document.getElementById('note-count');
+    el.textContent = Math.max(0, (parseInt(el.textContent) || 0) + delta);
+  }
+
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // ── Delete note ───────────────────────────────────────────────
+  async function deleteNote(id) {
+    try {
+      const r = await fetch(`/whiteboard/note/${id}`, { method: 'DELETE' });
+      if (r.ok) {
+        delete noteData[id];
+        document.getElementById(`note-${id}`)?.remove();
+        updateNoteCount(-1);
+        if (currentNoteId === id) detachNote();
+        if (!document.querySelector('.wb-note'))
+          document.getElementById('notes-list').innerHTML =
+            '<p class="wb-empty">No saved notes yet.<br>Write something and click "Save as Note".</p>';
+      }
+    } catch (_) {}
+  }
+</script>
+{% endblock %}
