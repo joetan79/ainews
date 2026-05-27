@@ -851,6 +851,16 @@ async def trigger_digest_endpoint(
         )
 
 
+@app.get("/logout")
+async def logout():
+    from fastapi.responses import Response as FResponse
+    return FResponse(
+        status_code=401,
+        headers={"WWW-Authenticate": 'Basic realm="ainews"'},
+        content="Logged out",
+    )
+
+
 @app.get("/whiteboard", response_class=HTMLResponse)
 def whiteboard_page(
     request: Request,

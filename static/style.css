@@ -1125,6 +1125,20 @@ body { top: 0 !important; }
   transition: background 0.3s;
 }
 
+.wb-editor img {
+  max-width: 100%;
+  border-radius: 6px;
+  margin: 4px 0;
+  display: block;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.wb-editor img.wb-img-sel {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .wb-editor:empty::before {
   content: attr(data-placeholder);
   color: var(--text-muted);
