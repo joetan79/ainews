@@ -854,11 +854,9 @@ async def trigger_digest_endpoint(
 @app.get("/logout")
 async def logout():
     from fastapi.responses import Response as FResponse
-    return FResponse(
-        status_code=401,
-        headers={"WWW-Authenticate": 'Basic realm="ainews"'},
-        content="Logged out",
-    )
+    # No WWW-Authenticate header — prevents browser from showing its native auth dialog.
+    # The 401 is handled silently by JS; browser sees bad credentials were rejected.
+    return FResponse(status_code=401, content="ok")
 
 
 @app.get("/whiteboard", response_class=HTMLResponse)

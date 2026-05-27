@@ -286,12 +286,17 @@
 
   // ── Logout ────────────────────────────────────────────────────
   async function handleLogout() {
+    // Send wrong credentials to poison browser's Basic Auth cache.
+    // /logout returns 401 with NO WWW-Authenticate header so the browser
+    // never shows its native auth dialog.
     try {
-      // Poison browser's Basic Auth cache with wrong credentials → 401
       await fetch('/logout', {
-        headers: { 'Authorization': 'Basic ' + btoa('x:x') }
+        headers: { 'Authorization': 'Basic ' + btoa('logged-out:logged-out') },
+        credentials: 'omit'
       });
     } catch (_) {}
+    localStorage.removeItem('wb_currentNoteId');
+    localStorage.removeItem('wb_currentNoteTitle');
     window.location.replace('/');
   }
 
