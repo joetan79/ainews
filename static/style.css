@@ -1425,36 +1425,40 @@ body { top: 0 !important; }
 
 /* Checklist items */
 .wb-check-item {
-  display: flex;
-  align-items: baseline;
-  gap: 7px;
+  display: block;
+  position: relative;
+  padding-left: 26px;
   margin: 1px 0;
   line-height: inherit;
-  cursor: pointer;
+  min-height: 1.4em;
 }
 
-.wb-cb {
-  pointer-events: none;   /* clicks pass to parent — avoids node-selection on contenteditable="false" */
+/* Checkbox glyph via ::before — no DOM node, no contenteditable="false" issues */
+.wb-check-item::before {
+  content: '☐';
+  position: absolute;
+  left: 0;
+  width: 22px;
+  text-align: left;
+  cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
   font-size: 1.1em;
-  flex-shrink: 0;
-  transition: opacity 0.15s, color 0.15s;
   line-height: 1;
+  transition: opacity 0.15s, color 0.15s;
 }
 
-.wb-check-item:hover .wb-cb { opacity: 0.6; }
+.wb-check-item:hover::before { opacity: 0.6; }
 
-.wb-cb-text { cursor: text; }
-
-.wb-check-done .wb-cb {
+.wb-check-done::before {
+  content: '☑';
   color: var(--accent);
+  opacity: 1;
 }
 
-.wb-check-done .wb-cb-text {
+.wb-check-done {
   text-decoration: line-through;
   color: var(--text-muted);
-  opacity: 0.75;
 }
 
 /* Mobile: stack layout vertically */

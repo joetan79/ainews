@@ -126,6 +126,7 @@
   const stat = document.getElementById('wb-status');
 
   wb.innerHTML = {{ content | tojson }};
+  migrateOldCheckItems();
 
   updateSaveButton();
   updateEditingIndicator();
@@ -139,8 +140,10 @@
     ws.onmessage = (e) => {
       try {
         const msg = JSON.parse(e.data);
-        if (msg.type === 'content' && document.activeElement !== wb)
+        if (msg.type === 'content' && document.activeElement !== wb) {
           wb.innerHTML = msg.data;
+          migrateOldCheckItems();
+        }
       } catch (_) {}
     };
     ws.onclose = () => {
@@ -367,6 +370,7 @@
       }
     } else {
       wb.innerHTML = data.content || '';
+      migrateOldCheckItems();
     }
 
     setCurrentNote(id, data.title);
@@ -485,20 +489,15 @@
     if (e.key === 'Enter') { e.preventDefault(); confirmModal(); }
   }
 
-  // Click: checkbox toggle, image deselect, modal close
-  // .wb-cb has pointer-events:none so clicks on it land on .wb-check-item instead,
-  // keeping the contenteditable cursor alive. We detect checkbox clicks by x-coordinate.
+  // Click: checkbox toggle (via ::before coordinate), image deselect, modal close
   wb.addEventListener('click', (e) => {
-    if (e.target.classList.contains('wb-check-item')) {
-      const cb = e.target.querySelector('.wb-cb');
-      if (cb) {
-        const cbRect = cb.getBoundingClientRect();
-        if (e.clientX <= cbRect.right + 6) {
-          const done = e.target.classList.toggle('wb-check-done');
-          cb.textContent = done ? '☑' : '☐';
-          wb.dispatchEvent(new Event('input'));
-          return;
-        }
+    const checkItem = e.target.closest('.wb-check-item');
+    if (checkItem) {
+      const rect = checkItem.getBoundingClientRect();
+      if (e.clientX - rect.left < 26) {
+        checkItem.classList.toggle('wb-check-done');
+        wb.dispatchEvent(new Event('input'));
+        return;
       }
     }
     if (e.target.tagName !== 'IMG') {
@@ -508,17 +507,21 @@
   });
 
   // ── Checklist ─────────────────────────────────────────────────
+  // Checkbox is a CSS ::before pseudo-element — no contenteditable="false" node,
+  // so focus and cursor are never disrupted by clicking the checkbox.
+
+  function migrateOldCheckItems() {
+    // Convert old format (<span class="wb-cb">☐</span><span class="wb-cb-text">…</span>)
+    // to new format (plain text directly in .wb-check-item, checkbox via CSS ::before).
+    wb.querySelectorAll('.wb-check-item').forEach(item => {
+      const textSpan = item.querySelector('.wb-cb-text');
+      if (textSpan) item.innerHTML = textSpan.innerHTML || '';
+    });
+  }
+
   function makeCheckItem() {
     const item = document.createElement('div');
     item.className = 'wb-check-item';
-    const cb = document.createElement('span');
-    cb.className = 'wb-cb';
-    cb.setAttribute('contenteditable', 'false');
-    cb.textContent = '☐';
-    const text = document.createElement('span');
-    text.className = 'wb-cb-text';
-    item.appendChild(cb);
-    item.appendChild(text);
     return item;
   }
 
@@ -529,11 +532,10 @@
     } else {
       wb.appendChild(item);
     }
-    const sel = window.getSelection();
     const range = document.createRange();
-    const textSpan = item.querySelector('.wb-cb-text');
-    range.setStart(textSpan, 0);
+    range.setStart(item, 0);
     range.collapse(true);
+    const sel = window.getSelection();
     sel.removeAllRanges();
     sel.addRange(range);
     return item;
@@ -548,8 +550,8 @@
       while (node && node.parentNode !== wb) node = node.parentNode;
       if (node && node !== wb) afterEl = node;
     }
-    insertCheckItem(afterEl);
     wb.focus();
+    insertCheckItem(afterEl);
     wb.dispatchEvent(new Event('input'));
   }
 
@@ -563,9 +565,7 @@
     const checkItem = node.closest?.('.wb-check-item');
     if (!checkItem) return;
     e.preventDefault();
-    const textSpan = checkItem.querySelector('.wb-cb-text');
-    if (!textSpan.textContent.trim()) {
-      // Empty → exit checklist
+    if (!checkItem.textContent.trim()) {
       const div = document.createElement('div');
       div.innerHTML = '<br>';
       checkItem.replaceWith(div);
