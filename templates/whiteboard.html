@@ -486,28 +486,20 @@
   }
 
   // Click: checkbox toggle, image deselect, modal close
+  // .wb-cb has pointer-events:none so clicks on it land on .wb-check-item instead,
+  // keeping the contenteditable cursor alive. We detect checkbox clicks by x-coordinate.
   wb.addEventListener('click', (e) => {
-    if (e.target.classList.contains('wb-cb')) {
-      const item = e.target.closest('.wb-check-item');
-      const done = item.classList.toggle('wb-check-done');
-      e.target.textContent = done ? '☑' : '☐';
-      wb.dispatchEvent(new Event('input'));
-      // Defer focus+cursor restoration — browser must finish click handling first
-      const textSpan = item.querySelector('.wb-cb-text');
-      setTimeout(() => {
-        wb.focus();
-        const sel = window.getSelection();
-        const range = document.createRange();
-        if (textSpan.childNodes.length > 0) {
-          range.setStartAfter(textSpan.lastChild);
-        } else {
-          range.setStart(textSpan, 0);
+    if (e.target.classList.contains('wb-check-item')) {
+      const cb = e.target.querySelector('.wb-cb');
+      if (cb) {
+        const cbRect = cb.getBoundingClientRect();
+        if (e.clientX <= cbRect.right + 6) {
+          const done = e.target.classList.toggle('wb-check-done');
+          cb.textContent = done ? '☑' : '☐';
+          wb.dispatchEvent(new Event('input'));
+          return;
         }
-        range.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }, 0);
-      return;
+      }
     }
     if (e.target.tagName !== 'IMG') {
       clearImgSel();

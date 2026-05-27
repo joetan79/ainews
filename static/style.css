@@ -1430,10 +1430,11 @@ body { top: 0 !important; }
   gap: 7px;
   margin: 1px 0;
   line-height: inherit;
+  cursor: pointer;
 }
 
 .wb-cb {
-  cursor: pointer;
+  pointer-events: none;   /* clicks pass to parent — avoids node-selection on contenteditable="false" */
   user-select: none;
   -webkit-user-select: none;
   font-size: 1.1em;
@@ -1442,7 +1443,9 @@ body { top: 0 !important; }
   line-height: 1;
 }
 
-.wb-cb:hover { opacity: 0.6; }
+.wb-check-item:hover .wb-cb { opacity: 0.6; }
+
+.wb-cb-text { cursor: text; }
 
 .wb-check-done .wb-cb {
   color: var(--accent);
