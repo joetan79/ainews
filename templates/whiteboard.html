@@ -16,6 +16,7 @@
       <span class="wb-title">Whiteboard</span>
       <div class="wb-toolbar-actions">
         <button onclick="toggleBg()" id="bg-toggle-btn" class="wb-btn">Show Grid</button>
+        <button onclick="addCheckItem()" class="wb-btn" title="Add checklist item — Enter adds more, Enter on empty exits">☑ Checklist</button>
         <button onclick="handleSave()" id="save-note-btn" class="wb-btn wb-btn-accent">Save as Note</button>
         <button onclick="clearBoard()" class="wb-btn wb-btn-danger">Clear</button>
         <button onclick="handleLogout()" class="wb-btn">Logout</button>
@@ -486,12 +487,92 @@
     if (e.key === 'Enter') { e.preventDefault(); confirmModal(); }
   }
 
-  // Click on whiteboard deselects image and closes modal
+  // Click: checkbox toggle, image deselect, modal close
   wb.addEventListener('click', (e) => {
+    if (e.target.classList.contains('wb-cb')) {
+      const item = e.target.closest('.wb-check-item');
+      const done = item.classList.toggle('wb-check-done');
+      e.target.textContent = done ? '☑' : '☐';
+      wb.dispatchEvent(new Event('input'));
+      return;
+    }
     if (e.target.tagName !== 'IMG') {
       clearImgSel();
       if (document.getElementById('wb-modal').style.display !== 'none') closeModal();
     }
+  });
+
+  // ── Checklist ─────────────────────────────────────────────────
+  function makeCheckItem() {
+    const item = document.createElement('div');
+    item.className = 'wb-check-item';
+    const cb = document.createElement('span');
+    cb.className = 'wb-cb';
+    cb.setAttribute('contenteditable', 'false');
+    cb.textContent = '☐';
+    const text = document.createElement('span');
+    text.className = 'wb-cb-text';
+    item.appendChild(cb);
+    item.appendChild(text);
+    return item;
+  }
+
+  function insertCheckItem(afterEl) {
+    const item = makeCheckItem();
+    if (afterEl && afterEl.parentNode === wb) {
+      afterEl.parentNode.insertBefore(item, afterEl.nextSibling);
+    } else {
+      wb.appendChild(item);
+    }
+    const sel = window.getSelection();
+    const range = document.createRange();
+    const textSpan = item.querySelector('.wb-cb-text');
+    range.setStart(textSpan, 0);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    return item;
+  }
+
+  function addCheckItem() {
+    const sel = window.getSelection();
+    let afterEl = null;
+    if (sel && sel.rangeCount) {
+      let node = sel.getRangeAt(0).commonAncestorContainer;
+      if (node.nodeType === Node.TEXT_NODE) node = node.parentNode;
+      while (node && node.parentNode !== wb) node = node.parentNode;
+      if (node && node !== wb) afterEl = node;
+    }
+    insertCheckItem(afterEl);
+    wb.focus();
+    wb.dispatchEvent(new Event('input'));
+  }
+
+  // Enter inside a check item → new item; Enter on empty item → exit to normal line
+  wb.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    let node = sel.getRangeAt(0).commonAncestorContainer;
+    if (node.nodeType === Node.TEXT_NODE) node = node.parentNode;
+    const checkItem = node.closest?.('.wb-check-item');
+    if (!checkItem) return;
+    e.preventDefault();
+    const textSpan = checkItem.querySelector('.wb-cb-text');
+    if (!textSpan.textContent.trim()) {
+      // Empty → exit checklist
+      const div = document.createElement('div');
+      div.innerHTML = '<br>';
+      checkItem.replaceWith(div);
+      const range = document.createRange();
+      range.setStart(div, 0);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else {
+      insertCheckItem(checkItem);
+    }
+    wb.dispatchEvent(new Event('input'));
   });
 
   async function confirmModal() {

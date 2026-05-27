@@ -1423,6 +1423,37 @@ body { top: 0 !important; }
   margin-top: 14px;
 }
 
+/* Checklist items */
+.wb-check-item {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin: 1px 0;
+  line-height: inherit;
+}
+
+.wb-cb {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  font-size: 1.1em;
+  flex-shrink: 0;
+  transition: opacity 0.15s, color 0.15s;
+  line-height: 1;
+}
+
+.wb-cb:hover { opacity: 0.6; }
+
+.wb-check-done .wb-cb {
+  color: var(--accent);
+}
+
+.wb-check-done .wb-cb-text {
+  text-decoration: line-through;
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+
 /* Mobile: stack layout vertically */
 @media (max-width: 768px) {
   .wb-layout {
