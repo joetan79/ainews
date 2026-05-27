@@ -485,30 +485,28 @@
     if (e.key === 'Enter') { e.preventDefault(); confirmModal(); }
   }
 
-  // Prevent focus loss when clicking the checkbox glyph (mousedown fires before focus moves)
-  wb.addEventListener('mousedown', (e) => {
-    if (e.target.classList.contains('wb-cb')) e.preventDefault();
-  });
-
   // Click: checkbox toggle, image deselect, modal close
   wb.addEventListener('click', (e) => {
     if (e.target.classList.contains('wb-cb')) {
       const item = e.target.closest('.wb-check-item');
       const done = item.classList.toggle('wb-check-done');
       e.target.textContent = done ? '☑' : '☐';
-      wb.focus();
-      const textSpan = item.querySelector('.wb-cb-text');
-      const sel = window.getSelection();
-      const range = document.createRange();
-      if (textSpan.childNodes.length > 0) {
-        range.setStartAfter(textSpan.lastChild);
-      } else {
-        range.setStart(textSpan, 0);
-      }
-      range.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(range);
       wb.dispatchEvent(new Event('input'));
+      // Defer focus+cursor restoration — browser must finish click handling first
+      const textSpan = item.querySelector('.wb-cb-text');
+      setTimeout(() => {
+        wb.focus();
+        const sel = window.getSelection();
+        const range = document.createRange();
+        if (textSpan.childNodes.length > 0) {
+          range.setStartAfter(textSpan.lastChild);
+        } else {
+          range.setStart(textSpan, 0);
+        }
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }, 0);
       return;
     }
     if (e.target.tagName !== 'IMG') {
