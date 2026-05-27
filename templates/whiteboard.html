@@ -167,12 +167,12 @@
     if (ws && ws.readyState === WebSocket.OPEN)
       ws.send(JSON.stringify({ type: 'content', data: content }));
     try {
-      const r = await fetch('/whiteboard/save', {
+      const r = await apiFetch('/whiteboard/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content }),
       });
-      if (r.ok) {
+      if (r && r.ok) {
         dirty = false;
         stat.textContent = 'Saved';
         setTimeout(() => { if (!dirty) stat.textContent = ''; }, 2000);
@@ -278,7 +278,7 @@
     wb.innerHTML = '';
     clearImgSel();
     detachNote();
-    await fetch('/whiteboard/clear', { method: 'POST' });
+    await apiFetch('/whiteboard/clear', { method: 'POST' });
     if (ws && ws.readyState === WebSocket.OPEN)
       ws.send(JSON.stringify({ type: 'content', data: '' }));
     stat.textContent = 'Cleared';
@@ -286,19 +286,17 @@
   }
 
   // ── Logout ────────────────────────────────────────────────────
-  async function handleLogout() {
-    // Send wrong credentials to poison browser's Basic Auth cache.
-    // /logout returns 401 with NO WWW-Authenticate header so the browser
-    // never shows its native auth dialog.
-    try {
-      await fetch('/logout', {
-        headers: { 'Authorization': 'Basic ' + btoa('logged-out:logged-out') },
-        credentials: 'omit'
-      });
-    } catch (_) {}
+  function handleLogout() {
     localStorage.removeItem('wb_currentNoteId');
     localStorage.removeItem('wb_currentNoteTitle');
-    window.location.replace('/');
+    window.location.href = '/logout';
+  }
+
+  // ── Authenticated fetch — redirect to login on session expiry ─
+  async function apiFetch(url, opts) {
+    const r = await fetch(url, opts);
+    if (r.status === 401) { window.location.href = '/login?expired=1'; return null; }
+    return r;
   }
 
   // ── Note state management ─────────────────────────────────────
@@ -340,8 +338,8 @@
 
     let data = noteData[id];
     try {
-      const r = await fetch(`/whiteboard/note/${id}`);
-      if (r.ok) {
+      const r = await apiFetch(`/whiteboard/note/${id}`);
+      if (r && r.ok) {
         const fresh = await r.json();
         data = { title: fresh.title, content: fresh.content, imageData: fresh.image_data || '' };
         noteData[id] = data;
@@ -424,12 +422,12 @@
     btn.classList.add('wb-btn-saved');
 
     try {
-      const r = await fetch(`/whiteboard/note/${id}/edit`, {
+      const r = await apiFetch(`/whiteboard/note/${id}/edit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, content, image_data: null }),
       });
-      if (r.ok && noteData[id]) {
+      if (r && r.ok && noteData[id]) {
         noteData[id].content   = content;
         noteData[id].imageData = '';
       }
@@ -490,9 +488,21 @@
   // Click: checkbox toggle, image deselect, modal close
   wb.addEventListener('click', (e) => {
     if (e.target.classList.contains('wb-cb')) {
+      e.preventDefault();
       const item = e.target.closest('.wb-check-item');
       const done = item.classList.toggle('wb-check-done');
       e.target.textContent = done ? '☑' : '☐';
+      const textSpan = item.querySelector('.wb-cb-text');
+      const sel = window.getSelection();
+      const range = document.createRange();
+      if (textSpan.childNodes.length > 0) {
+        range.setStartAfter(textSpan.lastChild);
+      } else {
+        range.setStart(textSpan, 0);
+      }
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
       wb.dispatchEvent(new Event('input'));
       return;
     }
@@ -597,12 +607,12 @@
   // ── Create new note ───────────────────────────────────────────
   async function doSaveNewNote(title, content) {
     try {
-      const r = await fetch('/whiteboard/note', {
+      const r = await apiFetch('/whiteboard/note', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, content, image_data: null }),
       });
-      if (r.ok) {
+      if (r && r.ok) {
         const data = await r.json();
         noteData[data.id] = { title, content, imageData: '' };
         prependNoteCard(data.id, title, data.created_at);
@@ -617,12 +627,12 @@
   async function doRenameNote(id, title) {
     const data = noteData[id] || {};
     try {
-      const r = await fetch(`/whiteboard/note/${id}/edit`, {
+      const r = await apiFetch(`/whiteboard/note/${id}/edit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, content: data.content || '', image_data: null }),
       });
-      if (r.ok) {
+      if (r && r.ok) {
         if (noteData[id]) noteData[id].title = title;
         const el = document.querySelector(`#note-${id} .wb-note-title`);
         if (el) el.textContent = title;
@@ -679,8 +689,8 @@
   // ── Delete note ───────────────────────────────────────────────
   async function deleteNote(id) {
     try {
-      const r = await fetch(`/whiteboard/note/${id}`, { method: 'DELETE' });
-      if (r.ok) {
+      const r = await apiFetch(`/whiteboard/note/${id}`, { method: 'DELETE' });
+      if (r && r.ok) {
         delete noteData[id];
         document.getElementById(`note-${id}`)?.remove();
         updateNoteCount(-1);

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Sign In — AI & Tech Daily{% endblock %}
+
+{% block head_extra %}
+<meta name="google" content="notranslate">
+{% endblock %}
+
+{% block content %}
+<div class="login-wrap">
+  <form method="post" action="/login" class="login-form" autocomplete="on">
+    <div class="login-logo">🔒</div>
+    <h2 class="login-title">Sign In</h2>
+    {% if error %}
+    <div class="login-error">{{ error }}</div>
+    {% endif %}
+    <div class="login-field">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username"
+             autocomplete="username" autofocus required>
+    </div>
+    <div class="login-field">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password"
+             autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="login-btn">Log In</button>
+  </form>
+</div>
+{% endblock %}

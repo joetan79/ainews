@@ -14,7 +14,7 @@ import io
 import httpx
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from fastapi import FastAPI, Depends, Request, Header, HTTPException, Form, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Depends, Request, Response, Header, HTTPException, Form, Cookie, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
@@ -72,6 +72,19 @@ def verify_admin(credentials: HTTPBasicCredentials = Depends(security)):
 VALID_EMAIL_RE = re.compile(r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$")
 
 whiteboard_connections: set[WebSocket] = set()
+
+# ── Whiteboard session store (form-based login, not HTTP Basic Auth) ──────────
+_wb_sessions: set[str] = set()
+
+def _new_wb_session() -> str:
+    token = secrets.token_hex(32)
+    _wb_sessions.add(token)
+    return token
+
+def require_wb_session(wb_sid: Optional[str] = Cookie(default=None)) -> str:
+    if wb_sid and wb_sid in _wb_sessions:
+        return "admin"
+    raise HTTPException(status_code=401, detail="Not authenticated")
 
 
 def _ws_verify_admin(authorization: Optional[str]) -> bool:
@@ -851,20 +864,53 @@ async def trigger_digest_endpoint(
         )
 
 
+@app.get("/login", response_class=HTMLResponse)
+def login_page(request: Request, expired: str = ""):
+    error = "Session expired. Please sign in again." if expired else None
+    return templates.TemplateResponse("login.html", {"request": request, "error": error})
+
+
+@app.post("/login")
+async def login_submit(
+    request: Request,
+    username: str = Form(),
+    password: str = Form(),
+):
+    ok_u = secrets.compare_digest(username.encode(), b"admin")
+    ok_p = secrets.compare_digest(password.encode(), ADMIN_PASSWORD.encode())
+    if not (ok_u and ok_p):
+        return templates.TemplateResponse(
+            "login.html",
+            {"request": request, "error": "Invalid username or password."},
+            status_code=401,
+        )
+    token = _new_wb_session()
+    resp = RedirectResponse("/whiteboard", status_code=303)
+    resp.set_cookie(
+        "wb_sid", token,
+        httponly=True, secure=True, samesite="strict",
+        max_age=86400 * 7,
+    )
+    return resp
+
+
 @app.get("/logout")
-async def logout():
-    from fastapi.responses import Response as FResponse
-    # No WWW-Authenticate header — prevents browser from showing its native auth dialog.
-    # The 401 is handled silently by JS; browser sees bad credentials were rejected.
-    return FResponse(status_code=401, content="ok")
+async def logout(wb_sid: Optional[str] = Cookie(default=None)):
+    if wb_sid:
+        _wb_sessions.discard(wb_sid)
+    resp = RedirectResponse("/login", status_code=303)
+    resp.delete_cookie("wb_sid", httponly=True, secure=True, samesite="strict")
+    return resp
 
 
 @app.get("/whiteboard", response_class=HTMLResponse)
 def whiteboard_page(
     request: Request,
     db: Session = Depends(get_db),
-    username: str = Depends(verify_admin),
+    wb_sid: Optional[str] = Cookie(default=None),
 ):
+    if not wb_sid or wb_sid not in _wb_sessions:
+        return RedirectResponse("/login", status_code=303)
     wb = db.query(WhiteboardContent).filter(WhiteboardContent.id == 1).first()
     content = wb.content if wb else ""
     notes = db.query(WhiteboardNote).order_by(WhiteboardNote.created_at.desc()).all()
@@ -909,7 +955,7 @@ class WhiteboardNotePayload(BaseModel):
 async def whiteboard_save(
     payload: WhiteboardSavePayload,
     db: Session = Depends(get_db),
-    username: str = Depends(verify_admin),
+    _: str = Depends(require_wb_session),
 ):
     wb = db.query(WhiteboardContent).filter(WhiteboardContent.id == 1).first()
     if wb:
@@ -926,7 +972,7 @@ async def whiteboard_save(
 async def create_whiteboard_note(
     payload: WhiteboardNotePayload,
     db: Session = Depends(get_db),
-    username: str = Depends(verify_admin),
+    _: str = Depends(require_wb_session),
 ):
     note = WhiteboardNote(
         title=payload.title or "Untitled",
@@ -945,7 +991,7 @@ async def edit_whiteboard_note(
     note_id: int,
     payload: WhiteboardNotePayload,
     db: Session = Depends(get_db),
-    username: str = Depends(verify_admin),
+    _: str = Depends(require_wb_session),
 ):
     note = db.query(WhiteboardNote).filter(WhiteboardNote.id == note_id).first()
     if not note:
@@ -964,7 +1010,7 @@ async def edit_whiteboard_note(
 async def get_whiteboard_note(
     note_id: int,
     db: Session = Depends(get_db),
-    username: str = Depends(verify_admin),
+    _: str = Depends(require_wb_session),
 ):
     note = db.query(WhiteboardNote).filter(WhiteboardNote.id == note_id).first()
     if not note:
@@ -976,7 +1022,7 @@ async def get_whiteboard_note(
 async def delete_whiteboard_note(
     note_id: int,
     db: Session = Depends(get_db),
-    username: str = Depends(verify_admin),
+    _: str = Depends(require_wb_session),
 ):
     note = db.query(WhiteboardNote).filter(WhiteboardNote.id == note_id).first()
     if not note:
@@ -989,7 +1035,7 @@ async def delete_whiteboard_note(
 @app.post("/whiteboard/clear")
 async def whiteboard_clear(
     db: Session = Depends(get_db),
-    username: str = Depends(verify_admin),
+    _: str = Depends(require_wb_session),
 ):
     wb = db.query(WhiteboardContent).filter(WhiteboardContent.id == 1).first()
     if wb:
