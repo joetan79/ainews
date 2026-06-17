@@ -938,16 +938,6 @@
 
   <!-- 3-tier image fallback chain -->
   <script>
-    var _robotSvg = '<svg class="sc-robot sc-robot--fallback" viewBox="0 0 70 100" fill="none" aria-hidden="true">'
-      + '<g class="sc-robot-antenna-group"><line x1="35" y1="6" x2="35" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="35" cy="3" r="3.5" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.2"/></g>'
-      + '<g class="sc-robot-head-group"><rect x="12" y="13" width="46" height="34" rx="6" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.08"/><rect class="sc-robot-eye-l" x="19" y="21" width="10" height="10" rx="3" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.25"/><rect class="sc-robot-eye-r" x="41" y="21" width="10" height="10" rx="3" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.25"/><path d="M21 37 Q35 43 49 37" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>'
-      + '<rect x="10" y="50" width="50" height="30" rx="5" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.08"/>'
-      + '<g class="sc-robot-arm-left"><rect x="1" y="52" width="9" height="22" rx="4" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.08"/></g>'
-      + '<g class="sc-robot-arm-right"><rect x="60" y="52" width="9" height="22" rx="4" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.08"/></g>'
-      + '<rect x="17" y="80" width="13" height="14" rx="4" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.08"/>'
-      + '<rect x="40" y="80" width="13" height="14" rx="4" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.08"/>'
-      + '</svg>';
-
     function handleImgError(img, domain, icon) {
       if (domain) {
         var wrap = img.closest('.article-image-wrap, .article-hero-wrap');
@@ -957,7 +947,7 @@
         div.className = isHero
           ? 'article-hero-img article-hero-img--fallback'
           : 'article-thumb article-thumb--fallback';
-        div.innerHTML = '<div class="sc-inner"><span class="sc-src">' + domain + '</span></div>' + _robotSvg;
+        div.innerHTML = '<div class="sc-inner"><span class="sc-src">' + domain + '</span></div>';
         img.parentNode.replaceChild(div, img);
         return;
       }
