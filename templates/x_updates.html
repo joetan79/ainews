@@ -40,7 +40,7 @@
         {% if post.summary and post.summary != post.title %}
         <p class="x-summary">{{ post.summary[:250] }}</p>
         {% endif %}
-        <a class="x-link" href="{{ post.source_url }}" target="_blank" rel="noopener">
+        <a class="x-link" href="{{ post.source_url }}" data-source-link target="_blank" rel="noopener">
           Read more →
         </a>
       </article>

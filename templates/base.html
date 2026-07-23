@@ -1028,6 +1028,24 @@
       }
     })();
 
+    // Outbound "read more"/source links (article.html, x_updates.html) point
+    // at the original publisher's site — the googtrans cookie above only
+    // translates THIS site's own DOM, it has no effect once you navigate
+    // away. Route those clicks through Google's page-translate proxy so the
+    // destination page renders in the same active language instead of
+    // suddenly switching back to whatever language the source published in.
+    // sl=auto means it's a no-op if the source already happens to match.
+    document.addEventListener('click', function(e) {
+      var link = e.target.closest('a[data-source-link]');
+      if (!link || !link.href) return;
+      var lang = getActiveLang();
+      if (!lang || lang === 'en') return;
+      e.preventDefault();
+      var translatedUrl = 'https://translate.google.com/translate?sl=auto&tl='
+        + encodeURIComponent(lang) + '&u=' + encodeURIComponent(link.href);
+      window.open(translatedUrl, link.target || '_blank', 'noopener,noreferrer');
+    }, true);
+
     function googleTranslateElementInit() {
       new google.translate.TranslateElement(
         { pageLanguage: 'en', autoDisplay: false },
