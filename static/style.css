@@ -1498,3 +1498,9 @@ body { top: 0 !important; }
 }
 
 .login-btn:hover { background: var(--accent-hover); }
+
+/* Illustrated fallback for cards whose source has no usable image (static/art/artN.svg) */
+.art-card {
+  object-fit: cover;
+  background: #eef1fb;
+}

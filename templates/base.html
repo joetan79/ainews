@@ -939,6 +939,15 @@
   <!-- 3-tier image fallback chain -->
   <script>
     function handleImgError(img, domain, icon) {
+      // Homepage cards: a source image that fails to load is swapped for the matching illustration.
+      if (img.dataset && img.dataset.art && img.closest('.article-image-wrap')) {
+        var art = document.createElement('img');
+        art.className = 'article-thumb art-card';
+        art.src = '/static/art/art' + img.dataset.art + '.svg';
+        art.alt = '';
+        img.parentNode.replaceChild(art, img);
+        return;
+      }
       if (domain) {
         var wrap = img.closest('.article-image-wrap, .article-hero-wrap');
         if (!wrap) { showIconFallback(img, icon); return; }

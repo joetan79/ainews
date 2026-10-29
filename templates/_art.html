@@ -1,0 +1,18 @@
+{# Picks one of the 8 illustrations in static/art/ for a card without a usable source image.
+   Matches on title keywords (first group that hits wins), else id % 8 so the grid stays varied. #}
+{% macro art_no(title, id) -%}
+{%- set t = ' ' ~ (title or '') | lower ~ ' ' -%}
+{%- set groups = [
+  [4, ['hack', 'breach', 'security', 'privacy', 'safety', 'lawsuit', 'court', 'copyright', ' ban ', ' law ', 'regulat', 'policy']],
+  [7, ['agent', 'robot', 'autonomous', 'automat']],
+  [2, ['chip', 'nvidia', 'gpu', ' tpu', 'semiconductor', 'silicon', 'data center', 'hardware']],
+  [3, ['funding', 'raises', 'valuation', 'billion', 'invest', 'revenue', 'stock', ' ipo', 'acquir', 'startup', 'profit']],
+  [6, ['open source', 'open-source', 'developer', 'github', ' sdk', ' api ', 'coding', ' code ']],
+  [5, ['paper', 'research', 'benchmark', 'reasoning', 'training', 'study']],
+  [8, ['china', 'europe', ' eu ', 'global', 'countries', 'cloud', 'international', 'world']],
+  [1, ['chatgpt', 'gemini', 'claude', 'assistant', 'chatbot', 'siri', ' app ', 'phone']]
+] -%}
+{%- set ns = namespace(n=0) -%}
+{%- for g in groups if ns.n == 0 -%}{%- for k in g[1] if ns.n == 0 -%}{%- if k in t -%}{%- set ns.n = g[0] -%}{%- endif -%}{%- endfor -%}{%- endfor -%}
+{{- ns.n if ns.n else ((id % 8) + 1) -}}
+{%- endmacro %}

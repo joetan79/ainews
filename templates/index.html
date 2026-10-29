@@ -3,6 +3,7 @@
 {% block title %}AI & Tech Daily — Your Daily AI & Tech Intelligence{% endblock %}
 
 {% block content %}
+{% from '_art.html' import art_no %}
 
 <!-- ═══════════════════════════════════════════
      HERO SECTION
@@ -98,6 +99,7 @@
             {% if featured.image_url %}
               <img
                 class="article-thumb"
+                data-art="{{ art_no(featured.title, featured.id) | trim }}"
                 src="{{ featured.image_url }}"
                 alt="{{ featured.title }}"
                 referrerpolicy="no-referrer"
@@ -105,26 +107,9 @@
                 onerror="this.onerror=null; handleImgError(this, '{{ featured_domain }}', '{{ featured_icon }}')"
                 onload="if(this.naturalWidth < 10){handleImgError(this,'{{ featured_domain }}','{{ featured_icon }}');}"
               >
-            {% elif featured_is_blocked %}
-              {% set card_variant = (featured.id % 6) + 1 %}
-              <div class="article-thumb source-card source-card--{{ card_variant }}">
-                <div class="sc-inner">
-                  <span class="sc-src">{{ featured_domain }}</span>
-                  <span class="sc-cat">{{ featured.category or 'AI & Tech' }}</span>
-                </div>
-              </div>
-            {% elif featured_domain %}
-              <div class="article-thumb article-thumb--fallback">
-                <div class="sc-inner">
-                  <img class="favicon-img favicon-img--card" src="https://www.google.com/s2/favicons?domain={{ featured_domain }}&sz=64" alt="{{ featured_domain }}" referrerpolicy="no-referrer" onerror="this.style.display='none'">
-                  <span class="sc-src">{{ featured_domain }}</span>
-                  <span class="sc-cat">{{ featured.category or 'AI & Tech' }}</span>
-                </div>
-              </div>
             {% else %}
-              <div class="article-thumb article-thumb--icon">
-                <span class="category-icon">{{ featured_icon }}</span>
-              </div>
+              {% set art_n = art_no(featured.title, featured.id) | trim %}
+              <img class="article-thumb art-card" src="/static/art/art{{ art_n }}.svg" alt="" loading="lazy" decoding="async">
             {% endif %}
             <div style="position:absolute; bottom:1rem; left:1.5rem; z-index:1;">
               <span class="category-badge">{{ featured.category.upper() }}</span>
@@ -167,6 +152,7 @@
               {% if article.image_url %}
                 <img
                   class="article-thumb"
+                  data-art="{{ art_no(article.title, article.id) | trim }}"
                   src="{{ article.image_url }}"
                   alt="{{ article.title }}"
                   referrerpolicy="no-referrer"
@@ -174,26 +160,9 @@
                   onerror="this.onerror=null; handleImgError(this, '{{ domain }}', '{{ icon }}')"
                   onload="if(this.naturalWidth < 10){handleImgError(this,'{{ domain }}','{{ icon }}');}"
                 >
-              {% elif is_blocked %}
-                {% set card_variant = (article.id % 6) + 1 %}
-                <div class="article-thumb source-card source-card--{{ card_variant }}">
-                  <div class="sc-inner">
-                    <span class="sc-src">{{ domain }}</span>
-                    <span class="sc-cat">{{ article.category or 'AI & Tech' }}</span>
-                  </div>
-                </div>
-              {% elif domain %}
-                <div class="article-thumb article-thumb--fallback">
-                  <div class="sc-inner">
-                    <img class="favicon-img favicon-img--card" src="https://www.google.com/s2/favicons?domain={{ domain }}&sz=64" alt="{{ domain }}" referrerpolicy="no-referrer" onerror="this.style.display='none'">
-                    <span class="sc-src">{{ domain }}</span>
-                    <span class="sc-cat">{{ article.category or 'AI & Tech' }}</span>
-                  </div>
-                </div>
               {% else %}
-                <div class="article-thumb article-thumb--icon">
-                  <span class="category-icon">{{ icon }}</span>
-                </div>
+                {% set art_n = art_no(article.title, article.id) | trim %}
+                <img class="article-thumb art-card" src="/static/art/art{{ art_n }}.svg" alt="" loading="lazy" decoding="async">
               {% endif %}
             </div>
             <div style="padding:1.375rem 1.5rem 1.5rem; display:flex; flex-direction:column; flex:1;">
@@ -235,6 +204,7 @@
               {% if article.image_url %}
                 <img
                   class="article-thumb"
+                  data-art="{{ art_no(article.title, article.id) | trim }}"
                   src="{{ article.image_url }}"
                   alt="{{ article.title }}"
                   referrerpolicy="no-referrer"
@@ -242,26 +212,9 @@
                   onerror="this.onerror=null; handleImgError(this, '{{ domain }}', '{{ icon }}')"
                   onload="if(this.naturalWidth < 10){handleImgError(this,'{{ domain }}','{{ icon }}');}"
                 >
-              {% elif is_blocked %}
-                {% set card_variant = (article.id % 6) + 1 %}
-                <div class="article-thumb source-card source-card--{{ card_variant }}">
-                  <div class="sc-inner">
-                    <span class="sc-src">{{ domain }}</span>
-                    <span class="sc-cat">{{ article.category or 'AI & Tech' }}</span>
-                  </div>
-                </div>
-              {% elif domain %}
-                <div class="article-thumb article-thumb--fallback">
-                  <div class="sc-inner">
-                    <img class="favicon-img favicon-img--card" src="https://www.google.com/s2/favicons?domain={{ domain }}&sz=64" alt="{{ domain }}" referrerpolicy="no-referrer" onerror="this.style.display='none'">
-                    <span class="sc-src">{{ domain }}</span>
-                    <span class="sc-cat">{{ article.category or 'AI & Tech' }}</span>
-                  </div>
-                </div>
               {% else %}
-                <div class="article-thumb article-thumb--icon">
-                  <span class="category-icon">{{ icon }}</span>
-                </div>
+                {% set art_n = art_no(article.title, article.id) | trim %}
+                <img class="article-thumb art-card" src="/static/art/art{{ art_n }}.svg" alt="" loading="lazy" decoding="async">
               {% endif %}
             </div>
             <div style="padding:1.375rem 1.5rem 1.5rem; display:flex; flex-direction:column; flex:1;">
